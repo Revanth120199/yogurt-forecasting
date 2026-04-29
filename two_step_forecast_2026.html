@@ -72,6 +72,8 @@ td.forecast,th.forecast{color:var(--forecast);font-weight:700;background:#f5f8ff
 <div class="table-wrap"><table><thead><tr><th>Week</th><th>Days</th><th>2020 Actual</th><th>2021 Actual</th><th>2022 Actual</th><th>2023 Actual</th><th>2024 Actual</th><th>2025 Actual</th><th class="forecast">2026 Forecast Avg</th><th>Weather Rain</th><th>Weather +/-</th><th>Weather Adjusted</th></tr></thead><tbody id="weeklyRows"></tbody></table></div>
 <h2>Monthly Cross Check</h2>
 <div class="table-wrap"><table><thead><tr><th>Year</th><th>Cases</th><th>Source</th></tr></thead><tbody id="monthlyRows"></tbody></table></div>
+<h2 id="itemPerfHeading">Item Performance</h2>
+<div class="table-wrap"><table><thead><tr><th style="text-align:center;width:36px">#</th><th>Item</th><th>Category</th><th>Flavor Type</th><th>2024 Actual</th><th>2025 Actual</th><th class="forecast">2026 Forecast</th><th>Weather +/-</th><th class="forecast">Weather Adjusted</th></tr></thead><tbody id="itemPerfRows"></tbody></table></div>
 </main>
 <script src="./two_step_forecast_2026_rows.js"></script>
 <script>
@@ -211,6 +213,28 @@ function selectedRow() {
 function setEmpty(isEmpty) {
   document.getElementById('emptyState').style.display = isEmpty ? 'block' : 'none';
 }
+function renderItemPerformance() {
+  const store = document.getElementById('storeFilter').value;
+  const month = document.getElementById('monthFilter').value;
+  const allItems = rows.filter(function(r) { return r[0] === store && r[2] === month; });
+  const sorted = allItems.slice().sort(function(a, b) { return b[13] - a[13]; });
+  const idx2024 = historyYears.indexOf(2024);
+  const idx2025 = historyYears.indexOf(2025);
+  document.getElementById('itemPerfHeading').textContent = 'Item Performance — ' + (store || '') + (month ? ' · ' + formatMonth(month) : '');
+  document.getElementById('itemPerfRows').innerHTML = sorted.map(function(r, i) {
+    return '<tr>' +
+      '<td style="text-align:center;color:var(--muted)">' + (i + 1) + '</td>' +
+      '<td>' + esc(r[3]) + '</td>' +
+      '<td>' + esc(r[9] !== 'Uncategorized' ? r[9] : '') + '</td>' +
+      '<td>' + esc(r[10] !== 'Uncategorized' ? r[10] : '') + '</td>' +
+      '<td>' + fmt(idx2024 >= 0 ? r[6][idx2024] : 0) + '</td>' +
+      '<td>' + fmt(idx2025 >= 0 ? r[6][idx2025] : 0) + '</td>' +
+      '<td class="forecast">' + fmt(r[4]) + '</td>' +
+      '<td>' + fmtSigned(r[12]) + '</td>' +
+      '<td class="forecast">' + fmt(r[13]) + '</td>' +
+      '</tr>';
+  }).join('');
+}
 function onStoreChange() {
   refreshMonthOptions();
   refreshGroupOptions();
@@ -242,6 +266,7 @@ function onFlavorTypeChange() {
   render();
 }
 function render() {
+  renderItemPerformance();
   const row = selectedRow();
   if (!row) {
     setEmpty(true);
