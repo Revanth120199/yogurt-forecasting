@@ -10,7 +10,8 @@
 body{margin:0;font-family:Segoe UI,Arial,sans-serif;color:var(--ink);background:linear-gradient(135deg,#fbf8f1 0%,#eef8f6 52%,#f8fafc 100%)}
 header{padding:24px 30px 20px;border-bottom:1px solid var(--line);background:rgba(255,255,255,.72)}
 .brand{display:flex;align-items:center;gap:12px}
-.brand-logo{height:44px;width:auto;display:block}
+.brand-mark{display:inline-flex;align-items:center;gap:7px;font-weight:800;color:#64a70b;font-size:28px;line-height:1}
+.brand-mark::before{content:"";width:24px;height:24px;border-radius:5px 5px 13px 13px;background:#64a70b}
 .brand-divider{width:1px;height:30px;background:var(--line)}
 .brand-title{font-size:28px;font-weight:800;color:#17212b;line-height:1}
 main{padding:22px 30px 38px}
@@ -34,6 +35,15 @@ th:first-child,td:first-child,th:nth-child(2),td:nth-child(2){text-align:left}
 th{background:#edf6f7;font-size:12px}
 td.forecast,th.forecast{color:var(--forecast);font-weight:700;background:#f5f8ff}
 .empty{display:none;border:1px solid var(--line);border-radius:10px;background:#fff;padding:16px;color:var(--muted)}
+.overview-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:28px}
+@media (max-width:1100px){.overview-grid{grid-template-columns:1fr}}
+.section-title{font-size:18px;font-weight:700;margin:0 0 10px;display:flex;align-items:center;gap:8px}
+.badge{display:inline-block;padding:2px 9px;border-radius:12px;font-size:11px;font-weight:700;letter-spacing:.04em}
+.badge-core{background:#d1fae5;color:#065f46}
+.badge-seasonal{background:#fef3c7;color:#92400e}
+tr.row-active td{background:#eef4ff}
+.overview-count{font-size:12px;color:var(--muted);font-weight:400;margin-left:6px}
+.tfoot-total td{font-weight:700;background:#f0f7f8;border-top:2px solid var(--line)}
 @media (max-width:1100px){.grid{grid-template-columns:repeat(2,minmax(140px,1fr))}}
 @media (max-width:900px){.filters,.grid{grid-template-columns:1fr}header,main{padding-left:16px;padding-right:16px}}
 </style>
@@ -41,7 +51,7 @@ td.forecast,th.forecast{color:var(--forecast);font-weight:700;background:#f5f8ff
 <body>
 <header>
 <div class="brand" aria-label="Yogurtland Forecasting">
-<img src="./logo-yogurtland.svg" alt="Yogurtland" class="brand-logo">
+<span class="brand-mark">Yogurtland</span>
 <span class="brand-divider" aria-hidden="true"></span>
 <span class="brand-title">Forecasting</span>
 </div>
@@ -72,8 +82,31 @@ td.forecast,th.forecast{color:var(--forecast);font-weight:700;background:#f5f8ff
 <div class="table-wrap"><table><thead><tr><th>Week</th><th>Days</th><th>2020 Actual</th><th>2021 Actual</th><th>2022 Actual</th><th>2023 Actual</th><th>2024 Actual</th><th>2025 Actual</th><th class="forecast">2026 Forecast Avg</th><th>Weather Rain</th><th>Weather +/-</th><th>Weather Adjusted</th></tr></thead><tbody id="weeklyRows"></tbody></table></div>
 <h2>Monthly Cross Check</h2>
 <div class="table-wrap"><table><thead><tr><th>Year</th><th>Cases</th><th>Source</th></tr></thead><tbody id="monthlyRows"></tbody></table></div>
-<h2 id="itemPerfHeading">Item Performance</h2>
-<div class="table-wrap"><table><thead><tr><th style="text-align:center;width:36px">#</th><th>Item</th><th>Category</th><th>Flavor Type</th><th>2024 Actual</th><th>2025 Actual</th><th class="forecast">2026 Forecast</th><th>Weather +/-</th><th class="forecast">Weather Adjusted</th></tr></thead><tbody id="itemPerfRows"></tbody></table></div>
+
+<div class="overview-grid">
+  <div>
+    <div class="section-title">
+      <span class="badge badge-core">CORE</span> Core Flavors
+      <span class="overview-count" id="coreFlavorsCount"></span>
+    </div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Item</th><th>Flavor Type</th><th class="forecast">2026 Forecast</th><th>Weather Adj.</th></tr></thead>
+      <tbody id="coreFlavorsRows"></tbody>
+      <tfoot><tr class="tfoot-total"><td>Total</td><td></td><td class="forecast" id="coreFlavorsTotal"></td><td id="coreFlavorsAdjTotal"></td></tr></tfoot>
+    </table></div>
+  </div>
+  <div>
+    <div class="section-title">
+      <span class="badge badge-seasonal">SEASONAL</span> Seasonal Flavors
+      <span class="overview-count" id="seasonalFlavorsCount"></span>
+    </div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Item</th><th>Category</th><th>Flavor Type</th><th class="forecast">2026 Forecast</th><th>Weather Adj.</th></tr></thead>
+      <tbody id="seasonalFlavorsRows"></tbody>
+      <tfoot><tr class="tfoot-total"><td>Total</td><td></td><td></td><td class="forecast" id="seasonalFlavorsTotal"></td><td id="seasonalFlavorsAdjTotal"></td></tr></tfoot>
+    </table></div>
+  </div>
+</div>
 </main>
 <script src="./two_step_forecast_2026_rows.js"></script>
 <script>
@@ -166,74 +199,14 @@ function refreshFlavorTypeOptions() {
   setOptions('flavorTypeFilter', preferredSorted(rowsForCategory().map(function(r) { return r[10]; }), preferred), null, 'All Types');
 }
 function refreshFlavorOptions() {
-  setOptions('flavorFilter', uniqueSorted(rowsForSelectableItems().map(function(r) { return r[3]; })), null, 'All Items');
-}
-function aggregateRows(matchingRows) {
-  if (!matchingRows.length) return null;
-  var weeklyForecast = [0,0,0,0,0];
-  var monthlyActuals = matchingRows[0][6].map(function() { return 0; });
-  var weeklyActuals = [0,1,2,3,4].map(function() { return matchingRows[0][6].map(function() { return 0; }); });
-  var weatherAdj = 0;
-  var weatherAdjusted = 0;
-  var weeklyWeatherAdj = [0,0,0,0,0];
-  var weeklyWeatherAdjusted = [0,0,0,0,0];
-  var weeklyRain = [0,0,0,0,0];
-  var rainCount = 0;
-  matchingRows.forEach(function(r) {
-    r[5].forEach(function(v, i) { weeklyForecast[i] += v; });
-    r[6].forEach(function(v, i) { monthlyActuals[i] += v; });
-    r[7].forEach(function(weekArr, wi) { weekArr.forEach(function(v, yi) { weeklyActuals[wi][yi] += v; }); });
-    weatherAdj += r[12];
-    weatherAdjusted += r[13];
-    r[14].forEach(function(v, i) { weeklyWeatherAdj[i] += v; });
-    r[15].forEach(function(v, i) { weeklyWeatherAdjusted[i] += v; });
-    if (r[16] && r[16].some(function(v) { return v > 0; })) {
-      r[16].forEach(function(v, i) { weeklyRain[i] += v; });
-      rainCount++;
-    }
-  });
-  if (rainCount > 0) weeklyRain = weeklyRain.map(function(v) { return v / rainCount; });
-  var monthlyForecast = weeklyForecast.reduce(function(a, b) { return a + b; }, 0);
-  return [
-    matchingRows[0][0], matchingRows[0][1], matchingRows[0][2], 'All Items',
-    monthlyForecast, weeklyForecast, monthlyActuals, weeklyActuals,
-    matchingRows[0][8], matchingRows[0][9], matchingRows[0][10], '',
-    weatherAdj, weatherAdjusted, weeklyWeatherAdj, weeklyWeatherAdjusted, weeklyRain,
-    'multiple', 'multiple'
-  ];
+  setOptions('flavorFilter', uniqueSorted(rowsForSelectableItems().map(function(r) { return r[3]; })));
 }
 function selectedRow() {
   const item = document.getElementById('flavorFilter').value;
-  if (item === allValue) {
-    const matching = rowsForSelectableItems();
-    return matching.length ? aggregateRows(matching) : null;
-  }
   return rowsForSelectableItems().find(function(r) { return r[3] === item; });
 }
 function setEmpty(isEmpty) {
   document.getElementById('emptyState').style.display = isEmpty ? 'block' : 'none';
-}
-function renderItemPerformance() {
-  const store = document.getElementById('storeFilter').value;
-  const month = document.getElementById('monthFilter').value;
-  const allItems = rows.filter(function(r) { return r[0] === store && r[2] === month; });
-  const sorted = allItems.slice().sort(function(a, b) { return b[13] - a[13]; });
-  const idx2024 = historyYears.indexOf(2024);
-  const idx2025 = historyYears.indexOf(2025);
-  document.getElementById('itemPerfHeading').textContent = 'Item Performance — ' + (store || '') + (month ? ' · ' + formatMonth(month) : '');
-  document.getElementById('itemPerfRows').innerHTML = sorted.map(function(r, i) {
-    return '<tr>' +
-      '<td style="text-align:center;color:var(--muted)">' + (i + 1) + '</td>' +
-      '<td>' + esc(r[3]) + '</td>' +
-      '<td>' + esc(r[9] !== 'Uncategorized' ? r[9] : '') + '</td>' +
-      '<td>' + esc(r[10] !== 'Uncategorized' ? r[10] : '') + '</td>' +
-      '<td>' + fmt(idx2024 >= 0 ? r[6][idx2024] : 0) + '</td>' +
-      '<td>' + fmt(idx2025 >= 0 ? r[6][idx2025] : 0) + '</td>' +
-      '<td class="forecast">' + fmt(r[4]) + '</td>' +
-      '<td>' + fmtSigned(r[12]) + '</td>' +
-      '<td class="forecast">' + fmt(r[13]) + '</td>' +
-      '</tr>';
-  }).join('');
 }
 function onStoreChange() {
   refreshMonthOptions();
@@ -242,6 +215,7 @@ function onStoreChange() {
   refreshFlavorTypeOptions();
   refreshFlavorOptions();
   render();
+  renderStoreOverview();
 }
 function onMonthChange() {
   refreshGroupOptions();
@@ -249,6 +223,7 @@ function onMonthChange() {
   refreshFlavorTypeOptions();
   refreshFlavorOptions();
   render();
+  renderStoreOverview();
 }
 function onGroupChange() {
   refreshCategoryOptions();
@@ -265,8 +240,51 @@ function onFlavorTypeChange() {
   refreshFlavorOptions();
   render();
 }
+function renderStoreOverview() {
+  const store = document.getElementById('storeFilter').value;
+  const month = document.getElementById('monthFilter').value;
+  const selectedItem = document.getElementById('flavorFilter').value;
+  const storeMonthRows = rows.filter(function(r) {
+    return r[0] === store && r[2] === month && r[8] === 'Flavor';
+  });
+
+  // Core flavors
+  const coreRows = storeMonthRows
+    .filter(function(r) { return r[9] === 'Core'; })
+    .sort(function(a, b) { return (b[13] || b[4]) - (a[13] || a[4]); });
+  const coreTotal = coreRows.reduce(function(s, r) { return s + Number(r[4] || 0); }, 0);
+  const coreAdjTotal = coreRows.reduce(function(s, r) { return s + Number(r[13] || 0); }, 0);
+  document.getElementById('coreFlavorsCount').textContent = '(' + coreRows.length + ' items)';
+  document.getElementById('coreFlavorsTotal').textContent = fmt(coreTotal);
+  document.getElementById('coreFlavorsAdjTotal').textContent = fmt(coreAdjTotal);
+  document.getElementById('coreFlavorsRows').innerHTML = coreRows.length
+    ? coreRows.map(function(r) {
+        const active = r[3] === selectedItem ? ' class="row-active"' : '';
+        return '<tr' + active + '><td>' + esc(r[3]) + '</td><td>' + esc(r[10]) + '</td>' +
+          '<td class="forecast">' + fmt(r[4]) + '</td>' +
+          '<td>' + fmt(r[13]) + '</td></tr>';
+      }).join('')
+    : '<tr><td colspan="4" style="color:var(--muted);padding:10px">No core flavors for this store / month</td></tr>';
+
+  // Seasonal flavors
+  const seasonalRows = storeMonthRows
+    .filter(function(r) { return r[11]; })
+    .sort(function(a, b) { return (b[13] || b[4]) - (a[13] || a[4]); });
+  const seasonalTotal = seasonalRows.reduce(function(s, r) { return s + Number(r[4] || 0); }, 0);
+  const seasonalAdjTotal = seasonalRows.reduce(function(s, r) { return s + Number(r[13] || 0); }, 0);
+  document.getElementById('seasonalFlavorsCount').textContent = '(' + seasonalRows.length + ' items)';
+  document.getElementById('seasonalFlavorsTotal').textContent = fmt(seasonalTotal);
+  document.getElementById('seasonalFlavorsAdjTotal').textContent = fmt(seasonalAdjTotal);
+  document.getElementById('seasonalFlavorsRows').innerHTML = seasonalRows.length
+    ? seasonalRows.map(function(r) {
+        const active = r[3] === selectedItem ? ' class="row-active"' : '';
+        return '<tr' + active + '><td>' + esc(r[3]) + '</td><td>' + esc(r[9]) + '</td><td>' + esc(r[10]) + '</td>' +
+          '<td class="forecast">' + fmt(r[4]) + '</td>' +
+          '<td>' + fmt(r[13]) + '</td></tr>';
+      }).join('')
+    : '<tr><td colspan="5" style="color:var(--muted);padding:10px">No seasonal flavors for this store / month</td></tr>';
+}
 function render() {
-  renderItemPerformance();
   const row = selectedRow();
   if (!row) {
     setEmpty(true);
@@ -306,6 +324,7 @@ function render() {
     '<tr><td>2026</td><td class="forecast">' + fmt(row[4]) + '</td><td>forecast average</td></tr>' +
     '<tr><td>2026</td><td>' + fmtSigned(row[12]) + '</td><td>weather +/- (' + esc(row[17]) + ')</td></tr>' +
     '<tr><td>2026</td><td class="forecast">' + fmt(row[13]) + '</td><td>weather adjusted forecast</td></tr>';
+  renderStoreOverview();
 }
 setOptions('storeFilter', stores);
 refreshMonthOptions();
@@ -320,6 +339,7 @@ document.getElementById('categoryFilter').addEventListener('change', onCategoryC
 document.getElementById('flavorTypeFilter').addEventListener('change', onFlavorTypeChange);
 document.getElementById('flavorFilter').addEventListener('change', render);
 render();
+renderStoreOverview();
 </script>
 </body>
 </html>
