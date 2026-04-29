@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Weekly Average Forecast 2026</title>
+<style>
+:root{--ink:#17212b;--muted:#5c6b73;--line:#d6e2e7;--panel:#f7fbfc;--accent:#0f766e;--forecast:#1d4ed8;--bg:#fbf8f1}
+*{box-sizing:border-box}
+body{margin:0;font-family:Segoe UI,Arial,sans-serif;color:var(--ink);background:linear-gradient(135deg,#fbf8f1 0%,#eef8f6 52%,#f8fafc 100%)}
+header{padding:24px 30px 20px;border-bottom:1px solid var(--line);background:rgba(255,255,255,.72)}
+.brand{display:flex;align-items:center;gap:12px}
+.brand-mark{display:inline-flex;align-items:center;gap:7px;font-weight:800;color:#64a70b;font-size:28px;line-height:1}
+.brand-mark::before{content:"";width:24px;height:24px;border-radius:5px 5px 13px 13px;background:#64a70b}
+.brand-divider{width:1px;height:30px;background:var(--line)}
+.brand-title{font-size:28px;font-weight:800;color:#17212b;line-height:1}
+main{padding:22px 30px 38px}
+.filters,.grid{display:grid;gap:12px;margin-bottom:18px}
+.filters{grid-template-columns:repeat(6,minmax(150px,1fr))}
+.grid{grid-template-columns:repeat(9,minmax(120px,1fr))}
+label{display:block;font-size:11px;color:var(--muted);text-transform:uppercase;margin-bottom:4px;letter-spacing:.04em}
+select{width:100%;padding:10px 11px;border:1px solid var(--line);border-radius:7px;background:#fff;font-size:14px}
+.card{border:1px solid var(--line);border-radius:10px;background:rgba(255,255,255,.82);padding:12px}
+.label{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.04em}
+.value{margin-top:6px;font-size:22px;font-weight:700}
+.forecast-card{border-color:#b8c9f3;background:#f5f8ff}
+.weather-card{border-color:#c9d8ba;background:#f7fbf3}
+.selected{border:1px solid var(--line);border-radius:10px;background:rgba(255,255,255,.82);padding:12px 14px;margin-bottom:18px}
+.selected strong{display:block;margin-bottom:3px}
+h2{font-size:18px;margin:22px 0 10px}
+.table-wrap{border:1px solid var(--line);border-radius:10px;overflow:auto;background:#fff}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{border-bottom:1px solid var(--line);padding:9px 10px;text-align:right;white-space:nowrap}
+th:first-child,td:first-child,th:nth-child(2),td:nth-child(2){text-align:left}
+th{background:#edf6f7;font-size:12px}
+td.forecast,th.forecast{color:var(--forecast);font-weight:700;background:#f5f8ff}
+.empty{display:none;border:1px solid var(--line);border-radius:10px;background:#fff;padding:16px;color:var(--muted)}
+@media (max-width:1100px){.grid{grid-template-columns:repeat(2,minmax(140px,1fr))}}
+@media (max-width:900px){.filters,.grid{grid-template-columns:1fr}header,main{padding-left:16px;padding-right:16px}}
+</style>
+</head>
+<body>
+<header>
+<div class="brand" aria-label="Yogurtland Forecasting">
+<span class="brand-mark">Yogurtland</span>
+<span class="brand-divider" aria-hidden="true"></span>
+<span class="brand-title">Forecasting</span>
+</div>
+</header>
+<main>
+<div class="filters">
+<div><label for="storeFilter">Store / Unit</label><select id="storeFilter"></select></div>
+<div><label for="monthFilter">Month</label><select id="monthFilter"></select></div>
+<div><label for="groupFilter">Item Group</label><select id="groupFilter"></select></div>
+<div><label for="categoryFilter">Category</label><select id="categoryFilter"></select></div>
+<div><label for="flavorTypeFilter">Flavor Type</label><select id="flavorTypeFilter"></select></div>
+<div><label for="flavorFilter">Item</label><select id="flavorFilter"></select></div>
+</div>
+<div class="selected" id="selectedSummary"></div>
+<div class="grid">
+<div class="card"><div class="label">2020 Actual</div><div class="value" id="kpiActual0">0</div></div>
+<div class="card"><div class="label">2021 Actual</div><div class="value" id="kpiActual1">0</div></div>
+<div class="card"><div class="label">2022 Actual</div><div class="value" id="kpiActual2">0</div></div>
+<div class="card"><div class="label">2023 Actual</div><div class="value" id="kpiActual3">0</div></div>
+<div class="card"><div class="label">2024 Actual</div><div class="value" id="kpiActual4">0</div></div>
+<div class="card"><div class="label">2025 Actual</div><div class="value" id="kpiActual5">0</div></div>
+<div class="card forecast-card"><div class="label">2026 Forecast</div><div class="value" id="kpiForecast">0</div></div>
+<div class="card weather-card"><div class="label">Weather +/-</div><div class="value" id="kpiWeatherAdjustment">0</div></div>
+<div class="card weather-card"><div class="label">Weather Adjusted</div><div class="value" id="kpiWeatherAdjusted">0</div></div>
+</div>
+<div class="empty" id="emptyState">No historical rows are available for this store, month, and item.</div>
+<h2>Week-on-Week Forecast</h2>
+<div class="table-wrap"><table><thead><tr><th>Week</th><th>Days</th><th>2020 Actual</th><th>2021 Actual</th><th>2022 Actual</th><th>2023 Actual</th><th>2024 Actual</th><th>2025 Actual</th><th class="forecast">2026 Forecast Avg</th><th>Weather Rain</th><th>Weather +/-</th><th>Weather Adjusted</th></tr></thead><tbody id="weeklyRows"></tbody></table></div>
+<h2>Monthly Cross Check</h2>
+<div class="table-wrap"><table><thead><tr><th>Year</th><th>Cases</th><th>Source</th></tr></thead><tbody id="monthlyRows"></tbody></table></div>
+</main>
+<script src="./two_step_forecast_2026_rows.js"></script>
+<script>
+const weekDays = ['1-7', '8-14', '15-21', '22-28', '29-end'];
+const allValue = '__ALL__';
+const stores = Array.from(new Set(rows.map(function(r) { return r[0]; }))).sort();
+function fmt(n) { return Number(n || 0).toFixed(2); }
+function fmtSigned(n) {
+  const value = Number(n || 0);
+  return (value > 0 ? '+' : '') + fmt(value);
+}
+function fmtRain(n) {
+  return fmt(n) + ' in';
+}
+function esc(value) {
+  return String(value == null ? '' : value).replace(/[&<>"']/g, function(ch) {
+    return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[ch];
+  });
+}
+function formatMonth(monthKey) {
+  const parts = String(monthKey).split('-');
+  const date = new Date(Number(parts[0]), Number(parts[1]) - 1, 1);
+  return date.toLocaleString('en-US', { month: 'long', year: 'numeric' });
+}
+function uniqueSorted(values) {
+  return Array.from(new Set(values.filter(function(value) { return value != null && String(value).trim() !== ''; }))).sort();
+}
+function preferredSorted(values, preferred) {
+  const present = new Set(uniqueSorted(values));
+  const preferredValues = Array.isArray(preferred) ? preferred : [];
+  const ordered = preferredValues.filter(function(value) { return present.has(value); });
+  const rest = Array.from(present).filter(function(value) { return !preferredValues.includes(value); }).sort();
+  return ordered.concat(rest);
+}
+function addOption(select, value, label) {
+  const option = document.createElement('option');
+  option.value = value;
+  option.textContent = label;
+  select.appendChild(option);
+}
+function setOptions(id, values, formatter, allLabel) {
+  const select = document.getElementById(id);
+  const previous = select.value;
+  select.innerHTML = '';
+  if (allLabel) addOption(select, allValue, allLabel);
+  values.forEach(function(value) {
+    addOption(select, value, formatter ? formatter(value) : value);
+  });
+  if (Array.from(select.options).some(function(option) { return option.value === previous; })) {
+    select.value = previous;
+  }
+}
+function rowsForStore() {
+  const store = document.getElementById('storeFilter').value;
+  return rows.filter(function(r) { return r[0] === store; });
+}
+function rowsForStoreMonth() {
+  const store = document.getElementById('storeFilter').value;
+  const month = document.getElementById('monthFilter').value;
+  return rows.filter(function(r) { return r[0] === store && r[2] === month; });
+}
+function rowsForStoreMonthGroup() {
+  const group = document.getElementById('groupFilter').value;
+  return rowsForStoreMonth().filter(function(r) { return r[8] === group; });
+}
+function rowsForCategory() {
+  const category = document.getElementById('categoryFilter').value;
+  return rowsForStoreMonthGroup().filter(function(r) {
+    return category === allValue || r[9] === category;
+  });
+}
+function rowsForSelectableItems() {
+  const flavorType = document.getElementById('flavorTypeFilter').value;
+  return rowsForCategory().filter(function(r) {
+    return flavorType === allValue || r[10] === flavorType;
+  });
+}
+function refreshMonthOptions() {
+  setOptions('monthFilter', uniqueSorted(rowsForStore().map(function(r) { return r[2]; })), formatMonth);
+}
+function refreshGroupOptions() {
+  setOptions('groupFilter', uniqueSorted(rowsForStoreMonth().map(function(r) { return r[8]; })));
+}
+function refreshCategoryOptions() {
+  const preferred = typeof categoryOptions === 'undefined' ? [] : categoryOptions;
+  setOptions('categoryFilter', preferredSorted(rowsForStoreMonthGroup().map(function(r) { return r[9]; }), preferred), null, 'All Categories');
+}
+function refreshFlavorTypeOptions() {
+  const preferred = typeof flavorTypeOptions === 'undefined' ? [] : flavorTypeOptions;
+  setOptions('flavorTypeFilter', preferredSorted(rowsForCategory().map(function(r) { return r[10]; }), preferred), null, 'All Types');
+}
+function refreshFlavorOptions() {
+  setOptions('flavorFilter', uniqueSorted(rowsForSelectableItems().map(function(r) { return r[3]; })));
+}
+function selectedRow() {
+  const item = document.getElementById('flavorFilter').value;
+  return rowsForSelectableItems().find(function(r) { return r[3] === item; });
+}
+function setEmpty(isEmpty) {
+  document.getElementById('emptyState').style.display = isEmpty ? 'block' : 'none';
+}
+function onStoreChange() {
+  refreshMonthOptions();
+  refreshGroupOptions();
+  refreshCategoryOptions();
+  refreshFlavorTypeOptions();
+  refreshFlavorOptions();
+  render();
+}
+function onMonthChange() {
+  refreshGroupOptions();
+  refreshCategoryOptions();
+  refreshFlavorTypeOptions();
+  refreshFlavorOptions();
+  render();
+}
+function onGroupChange() {
+  refreshCategoryOptions();
+  refreshFlavorTypeOptions();
+  refreshFlavorOptions();
+  render();
+}
+function onCategoryChange() {
+  refreshFlavorTypeOptions();
+  refreshFlavorOptions();
+  render();
+}
+function onFlavorTypeChange() {
+  refreshFlavorOptions();
+  render();
+}
+function render() {
+  const row = selectedRow();
+  if (!row) {
+    setEmpty(true);
+    document.getElementById('selectedSummary').innerHTML = '<strong>No selection available</strong>';
+    historyYears.forEach(function(_, index) { document.getElementById('kpiActual' + index).textContent = '0.00'; });
+    document.getElementById('kpiForecast').textContent = '0.00';
+    document.getElementById('kpiWeatherAdjustment').textContent = '0.00';
+    document.getElementById('kpiWeatherAdjusted').textContent = '0.00';
+    document.getElementById('weeklyRows').innerHTML = '';
+    document.getElementById('monthlyRows').innerHTML = '';
+    return;
+  }
+  setEmpty(false);
+  const details = [formatMonth(row[2]), row[8], row[9], row[10], row[11]]
+    .filter(function(value) { return value && value !== 'Uncategorized'; })
+    .filter(function(value, index, array) { return array.indexOf(value) === index; })
+    .join(' - ');
+  document.getElementById('selectedSummary').innerHTML =
+    '<strong>' + esc(row[0]) + '</strong>' + esc(details) + ' - ' + esc(row[3]);
+  historyYears.forEach(function(_, index) {
+    document.getElementById('kpiActual' + index).textContent = fmt(row[6][index]);
+  });
+  document.getElementById('kpiForecast').textContent = fmt(row[4]);
+  document.getElementById('kpiWeatherAdjustment').textContent = fmtSigned(row[12]);
+  document.getElementById('kpiWeatherAdjusted').textContent = fmt(row[13]);
+  document.getElementById('weeklyRows').innerHTML = row[7].map(function(yearValues, weekIndex) {
+    const actualCells = yearValues.map(function(value) { return '<td>' + fmt(value) + '</td>'; }).join('');
+    return '<tr><td>Week ' + (weekIndex + 1) + '</td><td>' + weekDays[weekIndex] + '</td>' +
+      actualCells + '<td class="forecast">' + fmt(row[5][weekIndex]) + '</td>' +
+      '<td>' + fmtRain(row[16][weekIndex]) + '</td>' +
+      '<td>' + fmtSigned(row[14][weekIndex]) + '</td>' +
+      '<td class="forecast">' + fmt(row[15][weekIndex]) + '</td></tr>';
+  }).join('');
+  document.getElementById('monthlyRows').innerHTML = historyYears.map(function(year, index) {
+    return '<tr><td>' + year + '</td><td>' + fmt(row[6][index]) + '</td><td>actual</td></tr>';
+  }).join('') +
+    '<tr><td>2026</td><td class="forecast">' + fmt(row[4]) + '</td><td>forecast average</td></tr>' +
+    '<tr><td>2026</td><td>' + fmtSigned(row[12]) + '</td><td>weather +/- (' + esc(row[17]) + ')</td></tr>' +
+    '<tr><td>2026</td><td class="forecast">' + fmt(row[13]) + '</td><td>weather adjusted forecast</td></tr>';
+}
+setOptions('storeFilter', stores);
+refreshMonthOptions();
+refreshGroupOptions();
+refreshCategoryOptions();
+refreshFlavorTypeOptions();
+refreshFlavorOptions();
+document.getElementById('storeFilter').addEventListener('change', onStoreChange);
+document.getElementById('monthFilter').addEventListener('change', onMonthChange);
+document.getElementById('groupFilter').addEventListener('change', onGroupChange);
+document.getElementById('categoryFilter').addEventListener('change', onCategoryChange);
+document.getElementById('flavorTypeFilter').addEventListener('change', onFlavorTypeChange);
+document.getElementById('flavorFilter').addEventListener('change', render);
+render();
+</script>
+</body>
+</html>
