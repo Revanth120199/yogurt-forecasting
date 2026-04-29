@@ -10,8 +10,7 @@
 body{margin:0;font-family:Segoe UI,Arial,sans-serif;color:var(--ink);background:linear-gradient(135deg,#fbf8f1 0%,#eef8f6 52%,#f8fafc 100%)}
 header{padding:24px 30px 20px;border-bottom:1px solid var(--line);background:rgba(255,255,255,.72)}
 .brand{display:flex;align-items:center;gap:12px}
-.brand-mark{display:inline-flex;align-items:center;gap:7px;font-weight:800;color:#64a70b;font-size:28px;line-height:1}
-.brand-mark::before{content:"";width:24px;height:24px;border-radius:5px 5px 13px 13px;background:#64a70b}
+.brand-logo{height:44px;width:auto;display:block}
 .brand-divider{width:1px;height:30px;background:var(--line)}
 .brand-title{font-size:28px;font-weight:800;color:#17212b;line-height:1}
 main{padding:22px 30px 38px}
@@ -42,7 +41,7 @@ td.forecast,th.forecast{color:var(--forecast);font-weight:700;background:#f5f8ff
 <body>
 <header>
 <div class="brand" aria-label="Yogurtland Forecasting">
-<span class="brand-mark">Yogurtland</span>
+<img src="./logo-yogurtland.svg" alt="Yogurtland" class="brand-logo">
 <span class="brand-divider" aria-hidden="true"></span>
 <span class="brand-title">Forecasting</span>
 </div>
