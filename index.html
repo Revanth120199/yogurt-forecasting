@@ -34,7 +34,8 @@ th:first-child,td:first-child,th:nth-child(2),td:nth-child(2){text-align:left}
 th{background:#edf6f7;font-size:12px}
 td.forecast,th.forecast{color:var(--forecast);font-weight:700;background:#f5f8ff}
 .empty{display:none;border:1px solid var(--line);border-radius:10px;background:#fff;padding:16px;color:var(--muted)}
-@media (max-width:1100px){.grid{grid-template-columns:repeat(2,minmax(140px,1fr))}}
+.overview-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:28px}
+@media (max-width:1100px){.overview-grid{grid-template-columns:1fr}.grid{grid-template-columns:repeat(2,minmax(140px,1fr))}}
 @media (max-width:900px){.filters,.grid{grid-template-columns:1fr}header,main{padding-left:16px;padding-right:16px}}
 </style>
 </head>
@@ -74,6 +75,33 @@ td.forecast,th.forecast{color:var(--forecast);font-weight:700;background:#f5f8ff
 <div class="table-wrap"><table><thead><tr><th>Year</th><th>Cases</th><th>Source</th></tr></thead><tbody id="monthlyRows"></tbody></table></div>
 <h2 id="itemPerfHeading">Item Performance</h2>
 <div class="table-wrap"><table><thead><tr><th style="text-align:center;width:36px">#</th><th>Item</th><th>Category</th><th>Flavor Type</th><th>2024 Actual</th><th>2025 Actual</th><th class="forecast">2026 Forecast</th><th>Weather +/-</th><th class="forecast">Weather Adjusted</th></tr></thead><tbody id="itemPerfRows"></tbody></table></div>
+
+<div class="overview-grid">
+  <div>
+    <h2 style="display:flex;align-items:center;gap:8px">
+      <span style="display:inline-block;padding:2px 9px;border-radius:12px;font-size:11px;font-weight:700;letter-spacing:.04em;background:#d1fae5;color:#065f46">CORE</span>
+      Core Flavors
+      <span style="font-size:12px;color:var(--muted);font-weight:400" id="coreFlavorsCount"></span>
+    </h2>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Item</th><th>Flavor Type</th><th class="forecast">2026 Forecast</th><th>Weather Adj.</th></tr></thead>
+      <tbody id="coreFlavorsRows"></tbody>
+      <tfoot><tr style="font-weight:700;background:#f0f7f8"><td>Total</td><td></td><td class="forecast" id="coreFlavorsTotal"></td><td id="coreFlavorsAdjTotal"></td></tr></tfoot>
+    </table></div>
+  </div>
+  <div>
+    <h2 style="display:flex;align-items:center;gap:8px">
+      <span style="display:inline-block;padding:2px 9px;border-radius:12px;font-size:11px;font-weight:700;letter-spacing:.04em;background:#fef3c7;color:#92400e">SEASONAL</span>
+      Seasonal Flavors
+      <span style="font-size:12px;color:var(--muted);font-weight:400" id="seasonalFlavorsCount"></span>
+    </h2>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Item</th><th>Category</th><th>Flavor Type</th><th class="forecast">2026 Forecast</th><th>Weather Adj.</th></tr></thead>
+      <tbody id="seasonalFlavorsRows"></tbody>
+      <tfoot><tr style="font-weight:700;background:#f0f7f8"><td>Total</td><td></td><td></td><td class="forecast" id="seasonalFlavorsTotal"></td><td id="seasonalFlavorsAdjTotal"></td></tr></tfoot>
+    </table></div>
+  </div>
+</div>
 </main>
 <script src="./two_step_forecast_2026_rows.js"></script>
 <script>
@@ -235,6 +263,44 @@ function renderItemPerformance() {
       '</tr>';
   }).join('');
 }
+function renderStoreOverview() {
+  var store = document.getElementById('storeFilter').value;
+  var month = document.getElementById('monthFilter').value;
+  var selectedItem = document.getElementById('flavorFilter').value;
+  var storeMonthRows = rows.filter(function(r) {
+    return r[0] === store && r[2] === month && r[8] === 'Flavor';
+  });
+  var coreRows = storeMonthRows
+    .filter(function(r) { return r[9] === 'Core'; })
+    .sort(function(a, b) { return (b[13] || b[4]) - (a[13] || a[4]); });
+  var coreTotal = coreRows.reduce(function(s, r) { return s + Number(r[4] || 0); }, 0);
+  var coreAdjTotal = coreRows.reduce(function(s, r) { return s + Number(r[13] || 0); }, 0);
+  document.getElementById('coreFlavorsCount').textContent = '(' + coreRows.length + ' items)';
+  document.getElementById('coreFlavorsTotal').textContent = fmt(coreTotal);
+  document.getElementById('coreFlavorsAdjTotal').textContent = fmt(coreAdjTotal);
+  document.getElementById('coreFlavorsRows').innerHTML = coreRows.length
+    ? coreRows.map(function(r) {
+        var active = r[3] === selectedItem ? ' style="background:#eef4ff"' : '';
+        return '<tr' + active + '><td>' + esc(r[3]) + '</td><td>' + esc(r[10]) + '</td>' +
+          '<td class="forecast">' + fmt(r[4]) + '</td><td>' + fmt(r[13]) + '</td></tr>';
+      }).join('')
+    : '<tr><td colspan="4" style="color:var(--muted);padding:10px">No core flavors for this store / month</td></tr>';
+  var seasonalRows = storeMonthRows
+    .filter(function(r) { return r[11]; })
+    .sort(function(a, b) { return (b[13] || b[4]) - (a[13] || a[4]); });
+  var seasonalTotal = seasonalRows.reduce(function(s, r) { return s + Number(r[4] || 0); }, 0);
+  var seasonalAdjTotal = seasonalRows.reduce(function(s, r) { return s + Number(r[13] || 0); }, 0);
+  document.getElementById('seasonalFlavorsCount').textContent = '(' + seasonalRows.length + ' items)';
+  document.getElementById('seasonalFlavorsTotal').textContent = fmt(seasonalTotal);
+  document.getElementById('seasonalFlavorsAdjTotal').textContent = fmt(seasonalAdjTotal);
+  document.getElementById('seasonalFlavorsRows').innerHTML = seasonalRows.length
+    ? seasonalRows.map(function(r) {
+        var active = r[3] === selectedItem ? ' style="background:#eef4ff"' : '';
+        return '<tr' + active + '><td>' + esc(r[3]) + '</td><td>' + esc(r[9]) + '</td><td>' + esc(r[10]) + '</td>' +
+          '<td class="forecast">' + fmt(r[4]) + '</td><td>' + fmt(r[13]) + '</td></tr>';
+      }).join('')
+    : '<tr><td colspan="5" style="color:var(--muted);padding:10px">No seasonal flavors for this store / month</td></tr>';
+}
 function onStoreChange() {
   refreshMonthOptions();
   refreshGroupOptions();
@@ -306,6 +372,7 @@ function render() {
     '<tr><td>2026</td><td class="forecast">' + fmt(row[4]) + '</td><td>forecast average</td></tr>' +
     '<tr><td>2026</td><td>' + fmtSigned(row[12]) + '</td><td>weather +/- (' + esc(row[17]) + ')</td></tr>' +
     '<tr><td>2026</td><td class="forecast">' + fmt(row[13]) + '</td><td>weather adjusted forecast</td></tr>';
+  renderStoreOverview();
 }
 setOptions('storeFilter', stores);
 refreshMonthOptions();
@@ -320,6 +387,7 @@ document.getElementById('categoryFilter').addEventListener('change', onCategoryC
 document.getElementById('flavorTypeFilter').addEventListener('change', onFlavorTypeChange);
 document.getElementById('flavorFilter').addEventListener('change', render);
 render();
+renderStoreOverview();
 </script>
 </body>
 </html>
