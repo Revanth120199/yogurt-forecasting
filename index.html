@@ -200,11 +200,7 @@ function refreshCategoryOptions() {
   setOptions('categoryFilter', preferredSorted(rowsForStoreMonthGroup().map(function(r) { return r[9]; }), preferred), null, 'All Categories');
 }
 function refreshSeasonOptions() {
-  const sourceRows = rowsForCategory();
-  const values = [];
-  if (sourceRows.some(isSeasonalRow)) values.push('Seasonal');
-  if (sourceRows.some(function(r) { return !isSeasonalRow(r); })) values.push('Non-Seasonal');
-  setOptions('seasonFilter', values, null, 'All Seasons');
+  setOptions('seasonFilter', ['Seasonal', 'Non-Seasonal'], null, 'All Seasons');
 }
 function refreshFlavorTypeOptions() {
   const preferred = typeof flavorTypeOptions === 'undefined' ? [] : flavorTypeOptions;
