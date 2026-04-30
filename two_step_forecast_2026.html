@@ -80,8 +80,6 @@ tr.row-active td{background:#eef4ff}
 <div class="empty" id="emptyState">No historical rows are available for this store, month, and item.</div>
 <h2>Week-on-Week Forecast</h2>
 <div class="table-wrap"><table><thead><tr><th>Week</th><th>Days</th><th>2020 Actual</th><th>2021 Actual</th><th>2022 Actual</th><th>2023 Actual</th><th>2024 Actual</th><th>2025 Actual</th><th class="forecast">2026 Forecast Avg</th><th>Weather Rain</th><th>Weather +/-</th><th>Weather Adjusted</th></tr></thead><tbody id="weeklyRows"></tbody></table></div>
-<h2>Monthly Cross Check</h2>
-<div class="table-wrap"><table><thead><tr><th>Year</th><th>Cases</th><th>Source</th></tr></thead><tbody id="monthlyRows"></tbody></table></div>
 
 <div class="overview-grid">
   <div>
@@ -294,7 +292,6 @@ function render() {
     document.getElementById('kpiWeatherAdjustment').textContent = '0.00';
     document.getElementById('kpiWeatherAdjusted').textContent = '0.00';
     document.getElementById('weeklyRows').innerHTML = '';
-    document.getElementById('monthlyRows').innerHTML = '';
     return;
   }
   setEmpty(false);
@@ -318,12 +315,6 @@ function render() {
       '<td>' + fmtSigned(row[14][weekIndex]) + '</td>' +
       '<td class="forecast">' + fmt(row[15][weekIndex]) + '</td></tr>';
   }).join('');
-  document.getElementById('monthlyRows').innerHTML = historyYears.map(function(year, index) {
-    return '<tr><td>' + year + '</td><td>' + fmt(row[6][index]) + '</td><td>actual</td></tr>';
-  }).join('') +
-    '<tr><td>2026</td><td class="forecast">' + fmt(row[4]) + '</td><td>forecast average</td></tr>' +
-    '<tr><td>2026</td><td>' + fmtSigned(row[12]) + '</td><td>weather +/- (' + esc(row[17]) + ')</td></tr>' +
-    '<tr><td>2026</td><td class="forecast">' + fmt(row[13]) + '</td><td>weather adjusted forecast</td></tr>';
   renderStoreOverview();
 }
 setOptions('storeFilter', stores);

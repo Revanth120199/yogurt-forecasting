@@ -71,8 +71,6 @@ td.forecast,th.forecast{color:var(--forecast);font-weight:700;background:#f5f8ff
 <div class="empty" id="emptyState">No historical rows are available for this store, month, and item.</div>
 <h2>Week-on-Week Forecast</h2>
 <div class="table-wrap"><table><thead><tr><th>Week</th><th>Days</th><th>2020 Actual</th><th>2021 Actual</th><th>2022 Actual</th><th>2023 Actual</th><th>2024 Actual</th><th>2025 Actual</th><th class="forecast">2026 Forecast Avg</th><th>Weather Rain</th><th>Weather +/-</th><th>Weather Adjusted</th></tr></thead><tbody id="weeklyRows"></tbody></table></div>
-<h2>Monthly Cross Check</h2>
-<div class="table-wrap"><table><thead><tr><th>Year</th><th>Cases</th><th>Source</th></tr></thead><tbody id="monthlyRows"></tbody></table></div>
 <h2 id="itemPerfHeading">Item Performance</h2>
 <div class="table-wrap"><table><thead><tr><th style="text-align:center;width:36px">#</th><th>Item</th><th>Category</th><th>Flavor Type</th><th>2024 Actual</th><th>2025 Actual</th><th class="forecast">2026 Forecast</th><th>Weather +/-</th><th class="forecast">Weather Adjusted</th></tr></thead><tbody id="itemPerfRows"></tbody></table></div>
 
@@ -200,30 +198,37 @@ function refreshFlavorOptions() {
 }
 function aggregateRows(matchingRows) {
   if (!matchingRows.length) return null;
-  var weeklyForecast = [0,0,0,0,0];
   var monthlyActuals = matchingRows[0][6].map(function() { return 0; });
   var weeklyActuals = [0,1,2,3,4].map(function() { return matchingRows[0][6].map(function() { return 0; }); });
   var weatherAdj = 0;
-  var weatherAdjusted = 0;
   var weeklyWeatherAdj = [0,0,0,0,0];
-  var weeklyWeatherAdjusted = [0,0,0,0,0];
   var weeklyRain = [0,0,0,0,0];
   var rainCount = 0;
   matchingRows.forEach(function(r) {
-    r[5].forEach(function(v, i) { weeklyForecast[i] += v; });
     r[6].forEach(function(v, i) { monthlyActuals[i] += v; });
     r[7].forEach(function(weekArr, wi) { weekArr.forEach(function(v, yi) { weeklyActuals[wi][yi] += v; }); });
     weatherAdj += r[12];
-    weatherAdjusted += r[13];
     r[14].forEach(function(v, i) { weeklyWeatherAdj[i] += v; });
-    r[15].forEach(function(v, i) { weeklyWeatherAdjusted[i] += v; });
     if (r[16] && r[16].some(function(v) { return v > 0; })) {
       r[16].forEach(function(v, i) { weeklyRain[i] += v; });
       rainCount++;
     }
   });
   if (rainCount > 0) weeklyRain = weeklyRain.map(function(v) { return v / rainCount; });
+  var activeYearIndexes = monthlyActuals
+    .map(function(value, index) { return value > 0 ? index : -1; })
+    .filter(function(index) { return index >= 0; });
+  var weeklyForecast = weeklyActuals.map(function(yearValues) {
+    if (!activeYearIndexes.length) return 0;
+    return activeYearIndexes.reduce(function(sum, yearIndex) {
+      return sum + Number(yearValues[yearIndex] || 0);
+    }, 0) / activeYearIndexes.length;
+  });
   var monthlyForecast = weeklyForecast.reduce(function(a, b) { return a + b; }, 0);
+  var weeklyWeatherAdjusted = weeklyForecast.map(function(value, index) {
+    return Math.max(0, value + weeklyWeatherAdj[index]);
+  });
+  var weatherAdjusted = Math.max(0, monthlyForecast + weatherAdj);
   return [
     matchingRows[0][0], matchingRows[0][1], matchingRows[0][2], 'All Items',
     monthlyForecast, weeklyForecast, monthlyActuals, weeklyActuals,
@@ -363,7 +368,6 @@ function render() {
     document.getElementById('kpiWeatherAdjustment').textContent = '0.00';
     document.getElementById('kpiWeatherAdjusted').textContent = '0.00';
     document.getElementById('weeklyRows').innerHTML = '';
-    document.getElementById('monthlyRows').innerHTML = '';
     return;
   }
   setEmpty(false);
@@ -389,12 +393,6 @@ function render() {
       '<td>' + fmtSigned(row[14][weekIndex]) + '</td>' +
       '<td class="forecast">' + fmt(row[15][weekIndex]) + '</td></tr>';
   }).join('');
-  document.getElementById('monthlyRows').innerHTML = historyYears.map(function(year, index) {
-    return '<tr><td>' + year + '</td><td>' + fmt(row[6][index]) + '</td><td>actual</td></tr>';
-  }).join('') +
-    '<tr><td>2026</td><td class="forecast">' + fmt(row[4]) + '</td><td>forecast average</td></tr>' +
-    '<tr><td>2026</td><td>' + fmtSigned(row[12]) + '</td><td>weather +/- (' + esc(row[17]) + ')</td></tr>' +
-    '<tr><td>2026</td><td class="forecast">' + fmt(row[13]) + '</td><td>weather adjusted forecast</td></tr>';
 }
 setOptions('storeFilter', stores, null, 'All Stores');
 refreshMonthOptions();
