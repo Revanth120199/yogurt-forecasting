@@ -156,11 +156,13 @@ function setOptions(id, values, formatter, allLabel) {
 }
 function rowsForStore() {
   const store = document.getElementById('storeFilter').value;
+  if (store === allValue) return rows;
   return rows.filter(function(r) { return r[0] === store; });
 }
 function rowsForStoreMonth() {
   const store = document.getElementById('storeFilter').value;
   const month = document.getElementById('monthFilter').value;
+  if (store === allValue) return rows.filter(function(r) { return r[2] === month; });
   return rows.filter(function(r) { return r[0] === store && r[2] === month; });
 }
 function rowsForStoreMonthGroup() {
@@ -232,11 +234,12 @@ function aggregateRows(matchingRows) {
 }
 function selectedRow() {
   const item = document.getElementById('flavorFilter').value;
+  const matching = rowsForSelectableItems();
   if (item === allValue) {
-    const matching = rowsForSelectableItems();
     return matching.length ? aggregateRows(matching) : null;
   }
-  return rowsForSelectableItems().find(function(r) { return r[3] === item; });
+  const itemRows = matching.filter(function(r) { return r[3] === item; });
+  return itemRows.length ? aggregateRows(itemRows) : null;
 }
 function setEmpty(isEmpty) {
   document.getElementById('emptyState').style.display = isEmpty ? 'block' : 'none';
@@ -244,62 +247,79 @@ function setEmpty(isEmpty) {
 function renderItemPerformance() {
   const store = document.getElementById('storeFilter').value;
   const month = document.getElementById('monthFilter').value;
-  const allItems = rows.filter(function(r) { return r[0] === store && r[2] === month; });
-  const sorted = allItems.slice().sort(function(a, b) { return b[13] - a[13]; });
+  const allItems = rowsForStoreMonth();
   const idx2024 = historyYears.indexOf(2024);
   const idx2025 = historyYears.indexOf(2025);
-  document.getElementById('itemPerfHeading').textContent = 'Item Performance — ' + (store || '') + (month ? ' · ' + formatMonth(month) : '');
-  document.getElementById('itemPerfRows').innerHTML = sorted.map(function(r, i) {
+  const map = {};
+  allItems.forEach(function(r) {
+    const key = r[3];
+    if (!map[key]) map[key] = { name: r[3], cat: r[9], ft: r[10], a24: 0, a25: 0, fc: 0, wa: 0, adj: 0 };
+    map[key].a24 += idx2024 >= 0 ? Number(r[6][idx2024] || 0) : 0;
+    map[key].a25 += idx2025 >= 0 ? Number(r[6][idx2025] || 0) : 0;
+    map[key].fc += Number(r[4] || 0);
+    map[key].wa += Number(r[12] || 0);
+    map[key].adj += Number(r[13] || 0);
+  });
+  const sorted = Object.values(map).sort(function(a, b) { return b.adj - a.adj; });
+  const storeLabel = store === allValue ? 'All Stores' : store;
+  document.getElementById('itemPerfHeading').textContent = 'Item Performance — ' + (storeLabel || '') + (month ? ' · ' + formatMonth(month) : '');
+  document.getElementById('itemPerfRows').innerHTML = sorted.map(function(item, i) {
     return '<tr>' +
       '<td style="text-align:center;color:var(--muted)">' + (i + 1) + '</td>' +
-      '<td>' + esc(r[3]) + '</td>' +
-      '<td>' + esc(r[9] !== 'Uncategorized' ? r[9] : '') + '</td>' +
-      '<td>' + esc(r[10] !== 'Uncategorized' ? r[10] : '') + '</td>' +
-      '<td>' + fmt(idx2024 >= 0 ? r[6][idx2024] : 0) + '</td>' +
-      '<td>' + fmt(idx2025 >= 0 ? r[6][idx2025] : 0) + '</td>' +
-      '<td class="forecast">' + fmt(r[4]) + '</td>' +
-      '<td>' + fmtSigned(r[12]) + '</td>' +
-      '<td class="forecast">' + fmt(r[13]) + '</td>' +
+      '<td>' + esc(item.name) + '</td>' +
+      '<td>' + esc(item.cat !== 'Uncategorized' ? item.cat : '') + '</td>' +
+      '<td>' + esc(item.ft !== 'Uncategorized' ? item.ft : '') + '</td>' +
+      '<td>' + fmt(item.a24) + '</td>' +
+      '<td>' + fmt(item.a25) + '</td>' +
+      '<td class="forecast">' + fmt(item.fc) + '</td>' +
+      '<td>' + fmtSigned(item.wa) + '</td>' +
+      '<td class="forecast">' + fmt(item.adj) + '</td>' +
       '</tr>';
   }).join('');
+}
+function groupByFlavor(flavorRows) {
+  var map = {};
+  flavorRows.forEach(function(r) {
+    var key = r[3];
+    if (!map[key]) map[key] = { name: r[3], cat: r[9], ft: r[10], seasonal: r[11], fc: 0, adj: 0 };
+    map[key].fc += Number(r[4] || 0);
+    map[key].adj += Number(r[13] || 0);
+  });
+  return Object.values(map).sort(function(a, b) { return b.adj - a.adj; });
 }
 function renderStoreOverview() {
   var store = document.getElementById('storeFilter').value;
   var month = document.getElementById('monthFilter').value;
   var selectedItem = document.getElementById('flavorFilter').value;
   var storeMonthRows = rows.filter(function(r) {
-    return r[0] === store && r[2] === month && r[8] === 'Flavor';
+    return (store === allValue || r[0] === store) && r[2] === month && r[8] === 'Flavor';
   });
-  var coreRows = storeMonthRows
-    .filter(function(r) { return r[9] === 'Core'; })
-    .sort(function(a, b) { return (b[13] || b[4]) - (a[13] || a[4]); });
-  var coreTotal = coreRows.reduce(function(s, r) { return s + Number(r[4] || 0); }, 0);
-  var coreAdjTotal = coreRows.reduce(function(s, r) { return s + Number(r[13] || 0); }, 0);
-  document.getElementById('coreFlavorsCount').textContent = '(' + coreRows.length + ' items)';
+  var coreItems = groupByFlavor(storeMonthRows.filter(function(r) { return r[9] === 'Core'; }));
+  var coreTotal = coreItems.reduce(function(s, x) { return s + x.fc; }, 0);
+  var coreAdjTotal = coreItems.reduce(function(s, x) { return s + x.adj; }, 0);
+  document.getElementById('coreFlavorsCount').textContent = '(' + coreItems.length + ' items)';
   document.getElementById('coreFlavorsTotal').textContent = fmt(coreTotal);
   document.getElementById('coreFlavorsAdjTotal').textContent = fmt(coreAdjTotal);
-  document.getElementById('coreFlavorsRows').innerHTML = coreRows.length
-    ? coreRows.map(function(r) {
-        var active = r[3] === selectedItem ? ' style="background:#eef4ff"' : '';
-        return '<tr' + active + '><td>' + esc(r[3]) + '</td><td>' + esc(r[10]) + '</td>' +
-          '<td class="forecast">' + fmt(r[4]) + '</td><td>' + fmt(r[13]) + '</td></tr>';
+  document.getElementById('coreFlavorsRows').innerHTML = coreItems.length
+    ? coreItems.map(function(x) {
+        var active = x.name === selectedItem ? ' style="background:#eef4ff"' : '';
+        return '<tr' + active + '><td>' + esc(x.name) + '</td><td>' + esc(x.ft) + '</td>' +
+          '<td class="forecast">' + fmt(x.fc) + '</td><td>' + fmt(x.adj) + '</td></tr>';
       }).join('')
-    : '<tr><td colspan="4" style="color:var(--muted);padding:10px">No core flavors for this store / month</td></tr>';
-  var seasonalRows = storeMonthRows
-    .filter(function(r) { return r[11]; })
-    .sort(function(a, b) { return (b[13] || b[4]) - (a[13] || a[4]); });
-  var seasonalTotal = seasonalRows.reduce(function(s, r) { return s + Number(r[4] || 0); }, 0);
-  var seasonalAdjTotal = seasonalRows.reduce(function(s, r) { return s + Number(r[13] || 0); }, 0);
-  document.getElementById('seasonalFlavorsCount').textContent = '(' + seasonalRows.length + ' items)';
+    : '<tr><td colspan="4" style="color:var(--muted);padding:10px">No core flavors for this selection</td></tr>';
+  var seasonalItems = groupByFlavor(storeMonthRows.filter(function(r) { return r[11]; }));
+  var seasonalTotal = seasonalItems.reduce(function(s, x) { return s + x.fc; }, 0);
+  var seasonalAdjTotal = seasonalItems.reduce(function(s, x) { return s + x.adj; }, 0);
+  document.getElementById('seasonalFlavorsCount').textContent = '(' + seasonalItems.length + ' items)';
   document.getElementById('seasonalFlavorsTotal').textContent = fmt(seasonalTotal);
   document.getElementById('seasonalFlavorsAdjTotal').textContent = fmt(seasonalAdjTotal);
-  document.getElementById('seasonalFlavorsRows').innerHTML = seasonalRows.length
-    ? seasonalRows.map(function(r) {
-        var active = r[3] === selectedItem ? ' style="background:#eef4ff"' : '';
-        return '<tr' + active + '><td>' + esc(r[3]) + '</td><td>' + esc(r[9]) + '</td><td>' + esc(r[10]) + '</td>' +
-          '<td class="forecast">' + fmt(r[4]) + '</td><td>' + fmt(r[13]) + '</td></tr>';
+  document.getElementById('seasonalFlavorsRows').innerHTML = seasonalItems.length
+    ? seasonalItems.map(function(x) {
+        var active = x.name === selectedItem ? ' style="background:#eef4ff"' : '';
+        return '<tr' + active + '><td>' + esc(x.name) + '</td><td>' + esc(x.cat) + '</td><td>' + esc(x.ft) + '</td>' +
+          '<td class="forecast">' + fmt(x.fc) + '</td><td>' + fmt(x.adj) + '</td></tr>';
       }).join('')
-    : '<tr><td colspan="5" style="color:var(--muted);padding:10px">No seasonal flavors for this store / month</td></tr>';
+    : '<tr><td colspan="5" style="color:var(--muted);padding:10px">No seasonal flavors for this selection</td></tr>';
 }
 function onStoreChange() {
   refreshMonthOptions();
@@ -333,6 +353,7 @@ function onFlavorTypeChange() {
 }
 function render() {
   renderItemPerformance();
+  renderStoreOverview();
   const row = selectedRow();
   if (!row) {
     setEmpty(true);
@@ -346,12 +367,14 @@ function render() {
     return;
   }
   setEmpty(false);
+  const store = document.getElementById('storeFilter').value;
+  const storeLabel = store === allValue ? 'All Stores' : row[0];
   const details = [formatMonth(row[2]), row[8], row[9], row[10], row[11]]
     .filter(function(value) { return value && value !== 'Uncategorized'; })
     .filter(function(value, index, array) { return array.indexOf(value) === index; })
     .join(' - ');
   document.getElementById('selectedSummary').innerHTML =
-    '<strong>' + esc(row[0]) + '</strong>' + esc(details) + ' - ' + esc(row[3]);
+    '<strong>' + esc(storeLabel) + '</strong> ' + esc(details) + ' - ' + esc(row[3]);
   historyYears.forEach(function(_, index) {
     document.getElementById('kpiActual' + index).textContent = fmt(row[6][index]);
   });
@@ -372,9 +395,8 @@ function render() {
     '<tr><td>2026</td><td class="forecast">' + fmt(row[4]) + '</td><td>forecast average</td></tr>' +
     '<tr><td>2026</td><td>' + fmtSigned(row[12]) + '</td><td>weather +/- (' + esc(row[17]) + ')</td></tr>' +
     '<tr><td>2026</td><td class="forecast">' + fmt(row[13]) + '</td><td>weather adjusted forecast</td></tr>';
-  renderStoreOverview();
 }
-setOptions('storeFilter', stores);
+setOptions('storeFilter', stores, null, 'All Stores');
 refreshMonthOptions();
 refreshGroupOptions();
 refreshCategoryOptions();
@@ -387,7 +409,6 @@ document.getElementById('categoryFilter').addEventListener('change', onCategoryC
 document.getElementById('flavorTypeFilter').addEventListener('change', onFlavorTypeChange);
 document.getElementById('flavorFilter').addEventListener('change', render);
 render();
-renderStoreOverview();
 </script>
 </body>
 </html>
