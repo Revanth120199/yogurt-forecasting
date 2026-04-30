@@ -119,16 +119,23 @@ function esc(value) {
     return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[ch];
   });
 }
+const storeAliases = {
+  'AZ1051': 'AZ105',
+  'YL330': 'CA330',
+  'YL333': 'CA333',
+  'YL-161CA2': 'CA161',
+};
 function canonicalStoreCode(unit) {
   const upper = String(unit || '').trim().toUpperCase();
-  if (/^[A-Z]{2}\d{2,5}$/.test(upper)) return upper;
+  if (/^[A-Z]{2}\d{2,5}$/.test(upper)) return storeAliases[upper] || upper;
   let match = upper.match(/^YOGURTLAND\s+[A-Z]-([A-Z]{2})(\d{2,5})(?:[A-Z][A-Z0-9]*)?\b/);
-  if (match) return match[1] + match[2];
+  if (match) { const code = match[1] + match[2]; return storeAliases[code] || code; }
   match = upper.match(/^YOGURTLAND\s+([A-Z]{2})(\d{2,5})(?:[A-Z][A-Z0-9]*)?\b/);
-  if (match) return match[1] + match[2];
+  if (match) { const code = match[1] + match[2]; return storeAliases[code] || code; }
   match = upper.match(/^YOGURTLAND\s+(\d{2,5})([A-Z]{2})(?:[A-Z0-9]*)?\b/);
-  if (match) return match[2] + match[1];
-  return upper.replace(/^YOGURTLAND\s*/, '').split(/\s+/)[0] || upper;
+  if (match) { const code = match[2] + match[1]; return storeAliases[code] || code; }
+  const raw = upper.replace(/^YOGURTLAND\s*/, '').split(/\s+/)[0] || upper;
+  return storeAliases[raw] || raw;
 }
 function formatStoreLabel(unitOrCode) {
   return 'Yogurtland ' + canonicalStoreCode(unitOrCode);
