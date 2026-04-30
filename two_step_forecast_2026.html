@@ -111,22 +111,7 @@ tr.row-active td{background:#eef4ff}
 <script>
 const weekDays = ['1-7', '8-14', '15-21', '22-28', '29-end'];
 const allValue = '__ALL__';
-const stores = Array.from(new Set(rows.map(function(r) { return r[0]; })));
-const storeLabelCounts = stores.reduce(function(counts, store) {
-  const label = baseStoreLabel(store);
-  counts[label] = (counts[label] || 0) + 1;
-  return counts;
-}, {});
-const legacyStoreLabelCounts = stores.reduce(function(counts, store) {
-  if (isLegacyStoreCode(store)) {
-    const label = baseStoreLabel(store);
-    counts[label] = (counts[label] || 0) + 1;
-  }
-  return counts;
-}, {});
-stores.sort(function(a, b) {
-  return formatStoreLabel(a).localeCompare(formatStoreLabel(b)) || a.localeCompare(b);
-});
+const stores = Array.from(new Set(rows.map(function(r) { return canonicalStoreCode(r[0]); }))).sort();
 function fmt(n) { return Number(n || 0).toFixed(2); }
 function fmtSigned(n) {
   const value = Number(n || 0);
@@ -140,42 +125,19 @@ function esc(value) {
     return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[ch];
   });
 }
-function toTitleCase(value) {
-  return String(value || '').toLowerCase().replace(/\b[a-z]/g, function(ch) { return ch.toUpperCase(); });
+function canonicalStoreCode(unit) {
+  const upper = String(unit || '').trim().toUpperCase();
+  if (/^[A-Z]{2}\d{2,5}$/.test(upper)) return upper;
+  let match = upper.match(/^YOGURTLAND\s+[A-Z]-([A-Z]{2})(\d{2,5})(?:[A-Z][A-Z0-9]*)?\b/);
+  if (match) return match[1] + match[2];
+  match = upper.match(/^YOGURTLAND\s+([A-Z]{2})(\d{2,5})(?:[A-Z][A-Z0-9]*)?\b/);
+  if (match) return match[1] + match[2];
+  match = upper.match(/^YOGURTLAND\s+(\d{2,5})([A-Z]{2})(?:[A-Z0-9]*)?\b/);
+  if (match) return match[2] + match[1];
+  return upper.replace(/^YOGURTLAND\s*/, '').split(/\s+/)[0] || upper;
 }
-function baseStoreLabel(unit) {
-  const text = String(unit || '').trim();
-  const upper = text.toUpperCase();
-  let match = upper.match(/^YOGURTLAND\s+[A-Z]-([A-Z]{2}\d{2,5}[A-Z0-9]*)\b/);
-  if (match) return 'Yogurtland ' + match[1];
-  match = upper.match(/^YOGURTLAND\s+([A-Z]{2}\d{2,5}[A-Z0-9]*)\b/);
-  if (match) return 'Yogurtland ' + match[1];
-  match = upper.match(/^YOGURTLAND\s+(\d{2,5})([A-Z]{2})([A-Z0-9]*)\b/);
-  if (match) return 'Yogurtland ' + match[2] + match[1];
-  return text.replace(/^YOGURTLAND\b/i, 'Yogurtland');
-}
-function storeLocationLabel(unit) {
-  return toTitleCase(String(unit || '')
-    .replace(/^YOGURTLAND\s+[A-Z]-[A-Z]{2}\d{2,5}[A-Z0-9]*\s*/i, '')
-    .replace(/^YOGURTLAND\s+[A-Z]{2}\d{2,5}[A-Z0-9]*\s*/i, '')
-    .replace(/^YOGURTLAND\s+\d{2,5}[A-Z]{2}[A-Z0-9]*\s*/i, '')
-    .trim());
-}
-function isLegacyStoreCode(unit) {
-  return /^YOGURTLAND\s+\d{2,5}[A-Z]{2}[A-Z0-9]*\b/i.test(String(unit || ''));
-}
-function legacyStoreSuffix(unit) {
-  const match = String(unit || '').toUpperCase().match(/^YOGURTLAND\s+\d{2,5}[A-Z]{2}([A-Z0-9]*)\b/);
-  return match ? match[1] : '';
-}
-function formatStoreLabel(unit) {
-  const base = baseStoreLabel(unit);
-  if (storeLabelCounts[base] <= 1) return base;
-  if (isLegacyStoreCode(unit) && legacyStoreLabelCounts[base] <= 1) return base;
-  const suffix = legacyStoreSuffix(unit);
-  if (suffix) return base + '-' + suffix;
-  const location = storeLocationLabel(unit);
-  return location ? base + ' ' + location : base;
+function formatStoreLabel(unitOrCode) {
+  return 'Yogurtland ' + canonicalStoreCode(unitOrCode);
 }
 function formatMonth(monthKey) {
   const parts = String(monthKey).split('-');
@@ -215,12 +177,12 @@ function isSeasonalRow(row) {
 }
 function rowsForStore() {
   const store = document.getElementById('storeFilter').value;
-  return rows.filter(function(r) { return r[0] === store; });
+  return rows.filter(function(r) { return canonicalStoreCode(r[0]) === store; });
 }
 function rowsForStoreMonth() {
   const store = document.getElementById('storeFilter').value;
   const month = document.getElementById('monthFilter').value;
-  return rows.filter(function(r) { return r[0] === store && r[2] === month; });
+  return rows.filter(function(r) { return canonicalStoreCode(r[0]) === store && r[2] === month; });
 }
 function rowsForStoreMonthGroup() {
   const group = document.getElementById('groupFilter').value;
@@ -317,7 +279,7 @@ function renderStoreOverview() {
   const month = document.getElementById('monthFilter').value;
   const selectedItem = document.getElementById('flavorFilter').value;
   const storeMonthRows = rows.filter(function(r) {
-    return r[0] === store && r[2] === month && r[8] === 'Flavor';
+    return canonicalStoreCode(r[0]) === store && r[2] === month && r[8] === 'Flavor';
   });
 
   // Core flavors
@@ -376,7 +338,7 @@ function render() {
     .filter(function(value, index, array) { return array.indexOf(value) === index; })
     .join(' - ');
   document.getElementById('selectedSummary').innerHTML =
-    '<strong>' + esc(formatStoreLabel(row[0])) + '</strong>' + esc(details) + ' - ' + esc(row[3]);
+    '<strong>' + esc(formatStoreLabel(document.getElementById('storeFilter').value)) + '</strong>' + esc(details) + ' - ' + esc(row[3]);
   historyYears.forEach(function(_, index) {
     document.getElementById('kpiActual' + index).textContent = fmt(row[6][index]);
   });
