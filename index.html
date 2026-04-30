@@ -15,7 +15,7 @@ header{padding:24px 30px 20px;border-bottom:1px solid var(--line);background:rgb
 .brand-title{font-size:28px;font-weight:800;color:#17212b;line-height:1}
 main{padding:22px 30px 38px}
 .filters,.grid{display:grid;gap:12px;margin-bottom:18px}
-.filters{grid-template-columns:repeat(6,minmax(150px,1fr))}
+.filters{grid-template-columns:repeat(7,minmax(140px,1fr))}
 .grid{grid-template-columns:repeat(9,minmax(120px,1fr))}
 label{display:block;font-size:11px;color:var(--muted);text-transform:uppercase;margin-bottom:4px;letter-spacing:.04em}
 select{width:100%;padding:10px 11px;border:1px solid var(--line);border-radius:7px;background:#fff;font-size:14px}
@@ -53,6 +53,7 @@ td.forecast,th.forecast{color:var(--forecast);font-weight:700;background:#f5f8ff
 <div><label for="monthFilter">Month</label><select id="monthFilter"></select></div>
 <div><label for="groupFilter">Item Group</label><select id="groupFilter"></select></div>
 <div><label for="categoryFilter">Category</label><select id="categoryFilter"></select></div>
+<div><label for="seasonFilter">Season</label><select id="seasonFilter"></select></div>
 <div><label for="flavorTypeFilter">Flavor Type</label><select id="flavorTypeFilter"></select></div>
 <div><label for="flavorFilter">Item</label><select id="flavorFilter"></select></div>
 </div>
@@ -152,6 +153,9 @@ function setOptions(id, values, formatter, allLabel) {
     select.value = previous;
   }
 }
+function isSeasonalRow(row) {
+  return String(row[11] || '').trim() !== '';
+}
 function rowsForStore() {
   const store = document.getElementById('storeFilter').value;
   if (store === allValue) return rows;
@@ -173,9 +177,15 @@ function rowsForCategory() {
     return category === allValue || r[9] === category;
   });
 }
+function rowsForSeason() {
+  const season = document.getElementById('seasonFilter').value;
+  return rowsForCategory().filter(function(r) {
+    return season === allValue || (season === 'Seasonal' ? isSeasonalRow(r) : !isSeasonalRow(r));
+  });
+}
 function rowsForSelectableItems() {
   const flavorType = document.getElementById('flavorTypeFilter').value;
-  return rowsForCategory().filter(function(r) {
+  return rowsForSeason().filter(function(r) {
     return flavorType === allValue || r[10] === flavorType;
   });
 }
@@ -189,9 +199,16 @@ function refreshCategoryOptions() {
   const preferred = typeof categoryOptions === 'undefined' ? [] : categoryOptions;
   setOptions('categoryFilter', preferredSorted(rowsForStoreMonthGroup().map(function(r) { return r[9]; }), preferred), null, 'All Categories');
 }
+function refreshSeasonOptions() {
+  const sourceRows = rowsForCategory();
+  const values = [];
+  if (sourceRows.some(isSeasonalRow)) values.push('Seasonal');
+  if (sourceRows.some(function(r) { return !isSeasonalRow(r); })) values.push('Non-Seasonal');
+  setOptions('seasonFilter', values, null, 'All Seasons');
+}
 function refreshFlavorTypeOptions() {
   const preferred = typeof flavorTypeOptions === 'undefined' ? [] : flavorTypeOptions;
-  setOptions('flavorTypeFilter', preferredSorted(rowsForCategory().map(function(r) { return r[10]; }), preferred), null, 'All Types');
+  setOptions('flavorTypeFilter', preferredSorted(rowsForSeason().map(function(r) { return r[10]; }), preferred), null, 'All Types');
 }
 function refreshFlavorOptions() {
   setOptions('flavorFilter', uniqueSorted(rowsForSelectableItems().map(function(r) { return r[3]; })), null, 'All Items');
@@ -330,6 +347,7 @@ function onStoreChange() {
   refreshMonthOptions();
   refreshGroupOptions();
   refreshCategoryOptions();
+  refreshSeasonOptions();
   refreshFlavorTypeOptions();
   refreshFlavorOptions();
   render();
@@ -337,17 +355,25 @@ function onStoreChange() {
 function onMonthChange() {
   refreshGroupOptions();
   refreshCategoryOptions();
+  refreshSeasonOptions();
   refreshFlavorTypeOptions();
   refreshFlavorOptions();
   render();
 }
 function onGroupChange() {
   refreshCategoryOptions();
+  refreshSeasonOptions();
   refreshFlavorTypeOptions();
   refreshFlavorOptions();
   render();
 }
 function onCategoryChange() {
+  refreshSeasonOptions();
+  refreshFlavorTypeOptions();
+  refreshFlavorOptions();
+  render();
+}
+function onSeasonChange() {
   refreshFlavorTypeOptions();
   refreshFlavorOptions();
   render();
@@ -373,7 +399,9 @@ function render() {
   setEmpty(false);
   const store = document.getElementById('storeFilter').value;
   const storeLabel = store === allValue ? 'All Stores' : row[0];
-  const details = [formatMonth(row[2]), row[8], row[9], row[10], row[11]]
+  const season = document.getElementById('seasonFilter').value;
+  const seasonLabel = season === allValue ? row[11] : season;
+  const details = [formatMonth(row[2]), row[8], row[9], row[10], seasonLabel]
     .filter(function(value) { return value && value !== 'Uncategorized'; })
     .filter(function(value, index, array) { return array.indexOf(value) === index; })
     .join(' - ');
@@ -398,12 +426,14 @@ setOptions('storeFilter', stores, null, 'All Stores');
 refreshMonthOptions();
 refreshGroupOptions();
 refreshCategoryOptions();
+refreshSeasonOptions();
 refreshFlavorTypeOptions();
 refreshFlavorOptions();
 document.getElementById('storeFilter').addEventListener('change', onStoreChange);
 document.getElementById('monthFilter').addEventListener('change', onMonthChange);
 document.getElementById('groupFilter').addEventListener('change', onGroupChange);
 document.getElementById('categoryFilter').addEventListener('change', onCategoryChange);
+document.getElementById('seasonFilter').addEventListener('change', onSeasonChange);
 document.getElementById('flavorTypeFilter').addEventListener('change', onFlavorTypeChange);
 document.getElementById('flavorFilter').addEventListener('change', render);
 render();
