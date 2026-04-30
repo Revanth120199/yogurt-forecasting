@@ -111,6 +111,12 @@ tr.row-active td{background:#eef4ff}
 <script>
 const weekDays = ['1-7', '8-14', '15-21', '22-28', '29-end'];
 const allValue = '__ALL__';
+const storeAliases = {
+  'AZ1051': 'AZ105',
+  'YL330': 'CA330',
+  'YL333': 'CA333',
+  'YL-161CA2': 'CA161',
+};
 const stores = Array.from(new Set(rows.map(function(r) { return canonicalStoreCode(r[0]); }))).sort();
 function fmt(n) { return Number(n || 0).toFixed(2); }
 function fmtSigned(n) {
@@ -125,12 +131,6 @@ function esc(value) {
     return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[ch];
   });
 }
-const storeAliases = {
-  'AZ1051': 'AZ105',
-  'YL330': 'CA330',
-  'YL333': 'CA333',
-  'YL-161CA2': 'CA161',
-};
 function canonicalStoreCode(unit) {
   const upper = String(unit || '').trim().toUpperCase();
   if (/^[A-Z]{2}\d{2,5}$/.test(upper)) return storeAliases[upper] || upper;
