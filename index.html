@@ -405,10 +405,10 @@ function render() {
   if (!row) {
     setEmpty(true);
     document.getElementById('selectedSummary').innerHTML = '<strong>No selection available</strong>';
-    historyYears.forEach(function(_, index) { document.getElementById('kpiActual' + index).textContent = '0.00'; });
-    document.getElementById('kpiForecast').textContent = '0.00';
-    document.getElementById('kpiWeatherAdjustment').textContent = '0.00';
-    document.getElementById('kpiWeatherAdjusted').textContent = '0.00';
+    historyYears.forEach(function(_, index) { document.getElementById('kpiActual' + index).textContent = '0.00 cases'; });
+    document.getElementById('kpiForecast').textContent = '0.00 cases';
+    document.getElementById('kpiWeatherAdjustment').textContent = '0.00 cases';
+    document.getElementById('kpiWeatherAdjusted').textContent = '0.00 cases';
     document.getElementById('weeklyRows').innerHTML = '';
     return;
   }
@@ -424,11 +424,11 @@ function render() {
   document.getElementById('selectedSummary').innerHTML =
     '<strong>' + esc(storeLabel) + '</strong> ' + esc(details) + ' - ' + esc(row[3]);
   historyYears.forEach(function(_, index) {
-    document.getElementById('kpiActual' + index).textContent = fmt(row[6][index]);
+    document.getElementById('kpiActual' + index).textContent = fmt(row[6][index]) + ' cases';
   });
-  document.getElementById('kpiForecast').textContent = fmt(row[4]);
-  document.getElementById('kpiWeatherAdjustment').textContent = fmtSigned(row[12]);
-  document.getElementById('kpiWeatherAdjusted').textContent = fmt(row[13]);
+  document.getElementById('kpiForecast').textContent = fmt(row[4]) + ' cases';
+  document.getElementById('kpiWeatherAdjustment').textContent = fmtSigned(row[12]) + ' cases';
+  document.getElementById('kpiWeatherAdjusted').textContent = fmt(row[13]) + ' cases';
   document.getElementById('weeklyRows').innerHTML = row[7].map(function(yearValues, weekIndex) {
     const actualCells = yearValues.map(function(value) { return '<td>' + fmt(value) + '</td>'; }).join('');
     return '<tr><td>Week ' + (weekIndex + 1) + '</td><td>' + weekDays[weekIndex] + '</td>' +
