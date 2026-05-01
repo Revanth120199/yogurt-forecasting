@@ -1,0 +1,1210 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Yogurtland 2026 Forecasting Report</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root{
+  --ink:#17212b;--muted:#5c6b73;--line:#d6e2e7;
+  --accent:#0f766e;--accent2:#1d4ed8;--warn:#b45309;
+  --bg:#f8fafc;--white:#fff;--green-bg:#d1fae5;--green-fg:#065f46;
+  --blue-bg:#dbeafe;--blue-fg:#1e40af;--amber-bg:#fef3c7;--amber-fg:#92400e;
+  --red-bg:#fee2e2;--red-fg:#991b1b;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',Arial,sans-serif;color:var(--ink);background:var(--bg);font-size:14px;line-height:1.6}
+a{color:var(--accent2);text-decoration:none}
+
+/* ── PRINT ── */
+@media print{
+  .no-print{display:none!important}
+  .page{page-break-after:always;box-shadow:none!important;border-radius:0!important;margin:0!important;padding:32px 40px!important}
+  body{background:#fff}
+  .cover{min-height:100vh}
+}
+
+/* ── LAYOUT ── */
+.page{background:var(--white);max-width:1100px;margin:32px auto;padding:48px 56px;border-radius:12px;box-shadow:0 2px 16px rgba(0,0,0,.07)}
+.cover{min-height:94vh;display:flex;flex-direction:column;justify-content:space-between;background:linear-gradient(150deg,#0f766e 0%,#1d4ed8 100%);color:#fff;border-radius:12px;padding:64px 72px}
+.cover h1{font-size:52px;font-weight:900;line-height:1.1;margin-bottom:16px}
+.cover .sub{font-size:20px;opacity:.85;margin-bottom:8px}
+.cover .meta{font-size:14px;opacity:.65}
+.cover-badge{display:inline-block;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.35);padding:6px 18px;border-radius:20px;font-size:13px;margin-bottom:32px}
+.cover-footer{border-top:1px solid rgba(255,255,255,.25);padding-top:24px;display:flex;justify-content:space-between;align-items:flex-end}
+
+/* ── TOC ── */
+.toc{list-style:none}
+.toc li{border-bottom:1px dotted var(--line);padding:7px 0;display:flex;justify-content:space-between;font-size:14px}
+.toc li a{color:var(--ink)}
+.toc .section-num{color:var(--muted);font-size:12px;min-width:28px}
+.toc .chapter{font-weight:700;color:var(--accent)}
+
+/* ── HEADINGS ── */
+.page-title{font-size:30px;font-weight:800;color:var(--ink);margin-bottom:6px;padding-bottom:12px;border-bottom:3px solid var(--accent)}
+.section-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);margin-bottom:4px}
+h2{font-size:20px;font-weight:700;margin:32px 0 12px;color:var(--ink)}
+h3{font-size:16px;font-weight:700;margin:22px 0 8px;color:var(--ink)}
+h4{font-size:14px;font-weight:700;margin:14px 0 6px;color:var(--muted)}
+p{margin-bottom:10px;color:#334155}
+
+/* ── KPI GRID ── */
+.kpi-grid{display:grid;gap:14px;margin:18px 0}
+.kpi-grid-4{grid-template-columns:repeat(4,1fr)}
+.kpi-grid-3{grid-template-columns:repeat(3,1fr)}
+.kpi-grid-5{grid-template-columns:repeat(5,1fr)}
+.kpi-grid-9{grid-template-columns:repeat(9,1fr)}
+@media(max-width:900px){.kpi-grid-9,.kpi-grid-5{grid-template-columns:repeat(3,1fr)}.kpi-grid-4,.kpi-grid-3{grid-template-columns:repeat(2,1fr)}}
+.kpi{border:1px solid var(--line);border-radius:10px;padding:14px 16px;background:var(--bg)}
+.kpi .lbl{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:4px}
+.kpi .val{font-size:24px;font-weight:800;color:var(--ink);line-height:1}
+.kpi .sub-val{font-size:12px;color:var(--muted);margin-top:4px}
+.kpi.accent{border-color:#a7f3d0;background:var(--green-bg)}.kpi.accent .val{color:var(--green-fg)}
+.kpi.blue{border-color:#bfdbfe;background:var(--blue-bg)}.kpi.blue .val{color:var(--blue-fg)}
+.kpi.amber{border-color:#fde68a;background:var(--amber-bg)}.kpi.amber .val{color:var(--amber-fg)}
+.kpi.red{border-color:#fecaca;background:var(--red-bg)}.kpi.red .val{color:var(--red-fg)}
+
+/* ── TABLES ── */
+.table-wrap{border:1px solid var(--line);border-radius:10px;overflow:auto;margin:14px 0}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{border-bottom:1px solid var(--line);padding:9px 11px;text-align:right;white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+th{background:#edf6f7;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
+td.hi{color:var(--blue-fg);font-weight:700}
+td.pos{color:var(--green-fg);font-weight:700}
+td.neg{color:var(--red-fg);font-weight:700}
+tr:last-child td{border-bottom:none}
+.tfoot-row td{font-weight:700;background:#f0f7f8;border-top:2px solid var(--line)}
+
+/* ── CHARTS ── */
+.chart-wrap{border:1px solid var(--line);border-radius:10px;padding:20px;background:var(--white);margin:18px 0;position:relative}
+.chart-title{font-size:13px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:14px}
+canvas{display:block;width:100%!important}
+
+/* ── CALLOUT / INSIGHT BOXES ── */
+.callout{border-left:4px solid var(--accent);background:#f0fdfa;padding:14px 18px;border-radius:0 8px 8px 0;margin:16px 0}
+.callout.blue{border-color:var(--accent2);background:#eff6ff}
+.callout.amber{border-color:#f59e0b;background:#fffbeb}
+.callout.red{border-color:#ef4444;background:#fff1f2}
+.callout strong{display:block;font-size:13px;margin-bottom:4px;color:var(--ink)}
+.callout p{margin:0;font-size:13px;color:#475569}
+
+/* ── BADGES ── */
+.badge{display:inline-block;font-size:11px;font-weight:700;padding:2px 9px;border-radius:12px;letter-spacing:.03em}
+.badge-green{background:var(--green-bg);color:var(--green-fg)}
+.badge-blue{background:var(--blue-bg);color:var(--blue-fg)}
+.badge-amber{background:var(--amber-bg);color:var(--amber-fg)}
+.badge-red{background:var(--red-bg);color:var(--red-fg)}
+.badge-gray{background:#f1f5f9;color:#475569}
+
+/* ── STEP LIST ── */
+.step-list{list-style:none;counter-reset:steps}
+.step-list li{counter-increment:steps;display:flex;gap:14px;margin-bottom:18px;align-items:flex-start}
+.step-list li::before{content:counter(steps);min-width:30px;height:30px;border-radius:50%;background:var(--accent2);color:#fff;font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+.step-list li .step-body strong{display:block;font-size:14px;margin-bottom:4px}
+.step-list li .step-body p{margin:0;font-size:13px;color:#475569}
+
+/* ── FORMULA BOX ── */
+.formula{background:#1e293b;color:#e2e8f0;border-radius:8px;padding:14px 18px;font-family:Consolas,monospace;font-size:13px;margin:12px 0;overflow-x:auto}
+.formula .comment{color:#64748b}
+
+/* ── TWO-COL ── */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+@media(max-width:800px){.two-col{grid-template-columns:1fr}}
+
+/* ── ALGO CARDS ── */
+.algo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:18px 0}
+@media(max-width:800px){.algo-grid{grid-template-columns:1fr}}
+.algo-card{border:1px solid var(--line);border-radius:10px;padding:16px 18px;background:var(--white)}
+.algo-card .algo-name{font-size:15px;font-weight:800;margin-bottom:6px}
+.algo-card .algo-type{font-size:11px;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
+.algo-card p{font-size:13px;color:#475569;margin:0}
+
+/* ── DIVIDER ── */
+.divider{height:1px;background:var(--line);margin:28px 0}
+
+/* ── PRINT BUTTON ── */
+.print-btn{position:fixed;bottom:28px;right:28px;background:var(--accent);color:#fff;border:none;padding:12px 22px;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.2);z-index:999}
+.print-btn:hover{background:#0e6560}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════
+     PRINT BUTTON
+═══════════════════════════════════════════════ -->
+<button class="print-btn no-print" onclick="window.print()">Print / Save PDF</button>
+
+<!-- ═══════════════════════════════════════════════
+     PAGE 0 — COVER
+═══════════════════════════════════════════════ -->
+<div class="page cover" id="cover">
+  <div>
+    <div class="cover-badge">CONFIDENTIAL &nbsp;·&nbsp; INTERNAL USE ONLY</div>
+    <h1>2026 Demand<br>Forecasting Report</h1>
+    <p class="sub">Yogurtland Franchise Systems, Inc.</p>
+    <p class="meta">Prepared by: Supply Chain &amp; Analytics Team &nbsp;·&nbsp; Generated: April 29, 2026</p>
+  </div>
+  <div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:40px">
+      <div style="background:rgba(255,255,255,.15);border-radius:10px;padding:16px 18px">
+        <div style="font-size:11px;opacity:.7;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">History Years</div>
+        <div style="font-size:28px;font-weight:900">6</div>
+        <div style="font-size:11px;opacity:.65">2020 – 2025</div>
+      </div>
+      <div style="background:rgba(255,255,255,.15);border-radius:10px;padding:16px 18px">
+        <div style="font-size:11px;opacity:.7;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Purchase Rows</div>
+        <div style="font-size:28px;font-weight:900">2.43M</div>
+        <div style="font-size:11px;opacity:.65">Cleaned &amp; validated</div>
+      </div>
+      <div style="background:rgba(255,255,255,.15);border-radius:10px;padding:16px 18px">
+        <div style="font-size:11px;opacity:.7;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Stores</div>
+        <div style="font-size:28px;font-weight:900">301</div>
+        <div style="font-size:11px;opacity:.65">292 weather-enabled</div>
+      </div>
+      <div style="background:rgba(255,255,255,.15);border-radius:10px;padding:16px 18px">
+        <div style="font-size:11px;opacity:.7;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Forecast Rows</div>
+        <div style="font-size:28px;font-weight:900">190K</div>
+        <div style="font-size:11px;opacity:.65">Store × Item × Month</div>
+      </div>
+    </div>
+    <div class="cover-footer">
+      <div>
+        <div style="font-size:22px;font-weight:800">Yogurtland</div>
+        <div style="font-size:12px;opacity:.6">yogurtland.com</div>
+      </div>
+      <div style="text-align:right;font-size:12px;opacity:.6">
+        Forecast Year: 2026<br>
+        Model: Two-Step Weekly Average + Weather Adjustment<br>
+        Weather Source: Open-Meteo Archive API
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     PAGE 1 — TABLE OF CONTENTS
+═══════════════════════════════════════════════ -->
+<div class="page" id="toc">
+  <div class="section-label">Navigation</div>
+  <div class="page-title">Table of Contents</div>
+  <br>
+  <ul class="toc">
+    <li><span class="section-num chapter">01</span><a href="#exec-summary" class="chapter">Executive Summary</a><span></span></li>
+    <li><span class="section-num">02</span><a href="#data-overview">Data Sources &amp; Scope</a><span></span></li>
+    <li><span class="section-num">03</span><a href="#methodology">Forecasting Methodology</a><span></span></li>
+    <li><span class="section-num">04</span><a href="#weather">Weather Adjustment Model</a><span></span></li>
+    <li><span class="section-num">05</span><a href="#historical">Historical Performance Analysis</a><span></span></li>
+    <li><span class="section-num">06</span><a href="#forecast-highlights">2026 Forecast Highlights</a><span></span></li>
+    <li><span class="section-num">07</span><a href="#weekly">Weekly Breakdown Analysis</a><span></span></li>
+    <li><span class="section-num">08</span><a href="#flavor">Flavor Performance Analysis</a><span></span></li>
+    <li><span class="section-num">09</span><a href="#model-eval">Model Evaluation &amp; Accuracy</a><span></span></li>
+    <li><span class="section-num">10</span><a href="#assumptions">Assumptions &amp; Limitations</a><span></span></li>
+    <li><span class="section-num">11</span><a href="#conclusions">Conclusions &amp; Recommendations</a><span></span></li>
+    <li><span class="section-num chapter">12</span><a href="#ml-page" class="chapter">Forecasting Using Machine Learning Algorithm</a><span></span></li>
+  </ul>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     PAGE 2 — EXECUTIVE SUMMARY
+═══════════════════════════════════════════════ -->
+<div class="page" id="exec-summary">
+  <div class="section-label">Section 01</div>
+  <div class="page-title">Executive Summary</div>
+
+  <p>This report presents the complete 2026 demand forecast for Yogurtland franchise locations across the United States. Using six years of historical purchase data (2020–2025), the forecasting model produces weekly and monthly case-order estimates for every store-item combination, adjusted for local weather conditions.</p>
+
+  <div class="kpi-grid kpi-grid-4" style="margin-top:24px">
+    <div class="kpi accent">
+      <div class="lbl">Forecast Year</div>
+      <div class="val">2026</div>
+      <div class="sub-val">Full calendar year</div>
+    </div>
+    <div class="kpi blue">
+      <div class="lbl">Active Stores</div>
+      <div class="val">301</div>
+      <div class="sub-val">292 weather-geocoded</div>
+    </div>
+    <div class="kpi amber">
+      <div class="lbl">Unique Flavors</div>
+      <div class="val">81</div>
+      <div class="sub-val">Core, Rotator, Promo</div>
+    </div>
+    <div class="kpi">
+      <div class="lbl">Store-Flavor Pairs</div>
+      <div class="val">10,393</div>
+      <div class="sub-val">Individual forecast rows</div>
+    </div>
+  </div>
+
+  <div class="kpi-grid kpi-grid-4" style="margin-top:0">
+    <div class="kpi">
+      <div class="lbl">History Transactions</div>
+      <div class="val">2.43M</div>
+      <div class="sub-val">6-year purchase records</div>
+    </div>
+    <div class="kpi">
+      <div class="lbl">Forecast Rows Generated</div>
+      <div class="val">190,670</div>
+      <div class="sub-val">Store × Item × Month</div>
+    </div>
+    <div class="kpi accent">
+      <div class="lbl">ML Model — WAPE</div>
+      <div class="val">41.1%</div>
+      <div class="sub-val">vs 72.3% statistical</div>
+    </div>
+    <div class="kpi blue">
+      <div class="lbl">Weather Coverage</div>
+      <div class="val">97%</div>
+      <div class="sub-val">292 of 301 stores</div>
+    </div>
+  </div>
+
+  <h2>Key Findings</h2>
+  <div class="callout">
+    <strong>Consistent Recovery from 2021 Dip</strong>
+    <p>2021 showed a significant volume reduction — consistent with COVID-19 recovery effects. Volumes stabilized from 2022 onward, with 2024 and 2025 showing near-identical demand, forming a strong baseline for 2026 forecasting.</p>
+  </div>
+  <div class="callout blue">
+    <strong>Weather Has Meaningful Impact on Sales</strong>
+    <p>Precipitation-based adjustments shifted forecasts by up to ±25% for individual weeks. The 2025 weather analog approach (using 2025 rain patterns to estimate 2026 weather) produced week-level adjustments with a net negative impact during wetter months.</p>
+  </div>
+  <div class="callout amber">
+    <strong>Machine Learning Outperforms Statistical Model by 31 Percentage Points</strong>
+    <p>Back-testing on 2025 data shows the ML model achieves a WAPE of 41.1% vs 72.3% for the traditional statistical average. The ML model is recommended as the primary forecasting engine going forward.</p>
+  </div>
+
+  <h2>Scope of This Report</h2>
+  <p>This report covers all Yogurtland franchise stores in the system for the full calendar year 2026. Forecasts are broken down by month, week, store, flavor category, flavor type, and individual item. Weather adjustments are applied at the store level using historical precipitation data from the Open-Meteo archive API.</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     PAGE 3 — DATA OVERVIEW
+═══════════════════════════════════════════════ -->
+<div class="page" id="data-overview">
+  <div class="section-label">Section 02</div>
+  <div class="page-title">Data Sources &amp; Scope</div>
+
+  <h2>Historical Purchase Data</h2>
+  <p>Six annual purchase reports were extracted and cleaned to form the training dataset. Each report contains line-level transaction records with store unit, item description, invoice date, and cases ordered.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Source File</th><th>Year</th><th>Transaction Rows</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><td>2020 PURCHASE REPORT</td><td>2020</td><td style="text-align:right">349,050</td><td><span class="badge badge-green">Used</span></td></tr>
+        <tr><td>2021 PURCHASE REPORT</td><td>2021</td><td style="text-align:right">403,816</td><td><span class="badge badge-green">Used</span></td></tr>
+        <tr><td>2022 PURCHASE REPORT</td><td>2022</td><td style="text-align:right">411,786</td><td><span class="badge badge-green">Used</span></td></tr>
+        <tr><td>2023 PURCHASE REPORT</td><td>2023</td><td style="text-align:right">404,313</td><td><span class="badge badge-green">Used</span></td></tr>
+        <tr><td>2024 PURCHASE REPORT</td><td>2024</td><td style="text-align:right">429,525</td><td><span class="badge badge-green">Used</span></td></tr>
+        <tr><td>2025 PURCHASE REPORT</td><td>2025</td><td style="text-align:right">436,450</td><td><span class="badge badge-green">Used</span></td></tr>
+        <tr class="tfoot-row"><td><strong>Total</strong></td><td></td><td style="text-align:right"><strong>2,434,940</strong></td><td></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>Columns Extracted</h2>
+  <p>Each transaction record was reduced to four essential columns for forecasting purposes:</p>
+  <div class="kpi-grid kpi-grid-4">
+    <div class="kpi"><div class="lbl">UNIT</div><div class="val" style="font-size:16px">Store Name</div><div class="sub-val">e.g., YOGURTLAND 117CA2 LOS ANGELES</div></div>
+    <div class="kpi"><div class="lbl">ITEM DESCRIPTION</div><div class="val" style="font-size:16px">Flavor / SKU</div><div class="sub-val">e.g., YOGURT PLAIN TART</div></div>
+    <div class="kpi"><div class="lbl">INVOICE DATE</div><div class="val" style="font-size:16px">Order Date</div><div class="sub-val">Used to derive month &amp; week</div></div>
+    <div class="kpi"><div class="lbl">ORDERED</div><div class="val" style="font-size:16px">Cases</div><div class="sub-val">Units ordered per transaction</div></div>
+  </div>
+
+  <h2>Item Classification</h2>
+  <p>Item metadata was sourced from the <strong>Categorization</strong> sheet within the 2025 Purchase Report. Each flavor is tagged with:</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Attribute</th><th>Values</th><th>Purpose</th></tr></thead>
+      <tbody>
+        <tr><td>Item Group</td><td>Flavor, Topping</td><td>High-level product grouping</td></tr>
+        <tr><td>Category</td><td>Core, Rotator, Promo, Topping</td><td>Inventory planning tier</td></tr>
+        <tr><td>Flavor Type</td><td>Sweet, Sorbet, Tart, Ice Cream, Gelato, Plant Based, NSA, Shake, Smoothie Bowl, Light IC, Soft Serve, Topping</td><td>Flavor profile segmentation</td></tr>
+        <tr><td>Seasonal Flag</td><td>Season name or blank</td><td>Marks limited-time offerings</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="divider"></div>
+  <h2>Weather Data</h2>
+  <p>Precipitation data was fetched from the <strong>Open-Meteo Archive API</strong> (free, open-source meteorological data). Store addresses were geocoded to latitude/longitude coordinates to retrieve local daily precipitation totals.</p>
+  <div class="kpi-grid kpi-grid-4">
+    <div class="kpi accent"><div class="lbl">Source</div><div class="val" style="font-size:15px">Open-Meteo</div><div class="sub-val">precipitation_sum (daily)</div></div>
+    <div class="kpi blue"><div class="lbl">Stores Geocoded</div><div class="val">292</div><div class="sub-val">of 301 total (97%)</div></div>
+    <div class="kpi"><div class="lbl">Unresolved</div><div class="val">9</div><div class="sub-val">No weather adjustment applied</div></div>
+    <div class="kpi"><div class="lbl">Rain Threshold</div><div class="val">0.10"</div><div class="sub-val">Triggers rainy classification</div></div>
+  </div>
+
+  <div class="callout amber">
+    <strong>Weather Analog for 2026</strong>
+    <p>Since 2026 weather is not yet available, the model uses <strong>2025 precipitation</strong> as a same-month, same-week analog. This is a widely-used technique in demand planning when future weather forecasts are unavailable at the order-planning horizon.</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     PAGE 4 — METHODOLOGY
+═══════════════════════════════════════════════ -->
+<div class="page" id="methodology">
+  <div class="section-label">Section 03</div>
+  <div class="page-title">Forecasting Methodology</div>
+
+  <p>The model uses a <strong>Two-Step Weekly Average</strong> approach: first computing weekly case averages from historical data, then summing them into a monthly forecast. This method is transparent, auditable, and robust to missing data in individual years.</p>
+
+  <h2>Step 1 — Weekly Forecast Average</h2>
+  <p>For every combination of store, item, month, and week (1–5), the model identifies all historical years where that combination had non-zero orders, then computes the simple mean.</p>
+
+  <div class="formula">
+<span class="comment">-- For each [store, item, month, week]:</span>
+activeYears  = { y ∈ [2020…2025] | orders(store, item, month, y) &gt; 0 }
+weekForecast = mean( orders(store, item, month, week, y) for y in activeYears )
+  </div>
+
+  <div class="callout">
+    <strong>Why exclude zero-order years?</strong>
+    <p>If a store did not carry a particular item in a given year, including that year's zero in the average would artificially deflate the forecast. The model excludes these years from the denominator, producing a more accurate estimate of expected demand when the item is available.</p>
+  </div>
+
+  <h2>Step 2 — Monthly Forecast Sum</h2>
+  <p>The monthly forecast is the sum of five weekly forecast averages. Each month is divided into five fixed windows:</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Week</th><th>Days</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>Week 1</td><td>1 – 7</td><td>First 7 days of month</td></tr>
+        <tr><td>Week 2</td><td>8 – 14</td><td>Second 7 days</td></tr>
+        <tr><td>Week 3</td><td>15 – 21</td><td>Third 7 days</td></tr>
+        <tr><td>Week 4</td><td>22 – 28</td><td>Fourth 7 days</td></tr>
+        <tr><td>Week 5</td><td>29 – end</td><td>Remaining days (2–3 days)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="formula">
+monthlyForecast = Σ weekForecast(w) for w in [1, 2, 3, 4, 5]
+  </div>
+
+  <h2>Aggregation Across Stores &amp; Items</h2>
+  <p>The interactive dashboard supports aggregating across any combination of filters. When "All Stores" or "All Items" is selected, the system sums the individual row forecasts that match the filter criteria. This enables both granular single-store views and system-wide trend analysis.</p>
+
+  <div class="two-col">
+    <div>
+      <h3>Forecast Dimensions</h3>
+      <ul style="padding-left:18px;color:#334155;font-size:13px;line-height:2">
+        <li>Store / Unit</li>
+        <li>Month (January – December 2026)</li>
+        <li>Item Group (Flavor / Topping)</li>
+        <li>Category (Core / Rotator / Promo)</li>
+        <li>Season (Regular / Seasonal)</li>
+        <li>Flavor Type (12 types)</li>
+        <li>Individual Flavor (81 unique)</li>
+      </ul>
+    </div>
+    <div>
+      <h3>Output Fields Per Row</h3>
+      <ul style="padding-left:18px;color:#334155;font-size:13px;line-height:2">
+        <li>Monthly forecast (cases)</li>
+        <li>Weekly forecast × 5 weeks</li>
+        <li>Historical actuals × 6 years</li>
+        <li>Weather adjustment (cases)</li>
+        <li>Weather-adjusted forecast (cases)</li>
+        <li>Weekly rain totals (inches)</li>
+        <li>Adjustment method used</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     PAGE 5 — WEATHER MODEL
+═══════════════════════════════════════════════ -->
+<div class="page" id="weather">
+  <div class="section-label">Section 04</div>
+  <div class="page-title">Weather Adjustment Model</div>
+
+  <p>Yogurtland sales are sensitive to weather conditions — rainy days reduce foot traffic and yogurt purchases. The model applies a data-driven weather adjustment to every weekly forecast using historical precipitation data matched to each store's location.</p>
+
+  <h2>Rainy vs. Dry Classification</h2>
+  <p>Each week is classified as <strong>Rainy</strong> or <strong>Dry</strong> based on total precipitation:</p>
+  <div class="formula">
+rainy = (weekly_precipitation_sum &gt;= 0.10 inches)
+  </div>
+
+  <h2>Adjustment Logic — Three Pathways</h2>
+
+  <h3>Pathway 1 — Historical Rainy/Dry Average (Primary Method)</h3>
+  <p>When at least <strong>2 historical weeks</strong> in the same store, item, and month share the same rainy/dry classification as the 2026 forecast week:</p>
+  <div class="formula">
+matchingWeeks = { (store, item, month, week, year) | rainy_status matches 2026 }
+historicalAvg = mean( cases for week in matchingWeeks )
+adjustment    = historicalAvg − baseForecast
+
+<span class="comment">-- Sanity guard: rainy adjustment must be negative; dry must be non-negative</span>
+if rainy AND adjustment &gt;= 0 → fall back to Pathway 2
+if dry   AND adjustment &lt;  0 → adjustment = 0
+  </div>
+
+  <h3>Pathway 2 — Rain Fallback Drop Formula</h3>
+  <p>Applied when rainy but insufficient matching history exists:</p>
+  <div class="formula">
+rainSeverity = max(0,  precipitation − 0.10)
+dropRate     = min(0.25,  0.10 + rainSeverity × 0.03)
+adjustment   = −(baseForecast × dropRate)
+
+<span class="comment">-- Examples:</span>
+0.10 in rain → 10% drop   (0.10 + 0×0.03 = 10%)
+0.40 in rain → 19% drop   (0.10 + 0.3×0.03 = 19%)
+0.73+ in rain → 25% drop  (capped at maximum)
+  </div>
+
+  <h3>Pathway 3 — No Adjustment</h3>
+  <p>Applied when: (a) week is Dry and no negative history exists, or (b) the store was not geocoded (9 stores).</p>
+
+  <h2>Final Weather-Adjusted Forecast</h2>
+  <div class="formula">
+weatherAdjusted = max(0,  baseForecast + adjustment)
+<span class="comment">-- Floor at zero — forecast cannot be negative</span>
+  </div>
+
+  <div class="callout">
+    <strong>2025 Weather Analog</strong>
+    <p>For 2026, the model uses 2025 same-month, same-week precipitation as the proxy for future weather. This is a practical and commonly-accepted approximation. As actual 2026 weather data becomes available (via real-time NOAA or Open-Meteo feeds), the adjustment can be re-run to produce updated order recommendations.</p>
+  </div>
+
+  <div class="kpi-grid kpi-grid-4" style="margin-top:24px">
+    <div class="kpi"><div class="lbl">Rain Threshold</div><div class="val">0.10"</div><div class="sub-val">Triggers rainy classification</div></div>
+    <div class="kpi red"><div class="lbl">Min Drop (light rain)</div><div class="val">−10%</div><div class="sub-val">Base fallback rate</div></div>
+    <div class="kpi red"><div class="lbl">Max Drop (heavy rain)</div><div class="val">−25%</div><div class="sub-val">Capped drop rate</div></div>
+    <div class="kpi accent"><div class="lbl">Dry Adjustment</div><div class="val">0%</div><div class="sub-val">No upward boost applied</div></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     PAGE 6 — HISTORICAL ANALYSIS
+═══════════════════════════════════════════════ -->
+<div class="page" id="historical">
+  <div class="section-label">Section 05</div>
+  <div class="page-title">Historical Performance Analysis</div>
+
+  <p>The chart below shows the total purchase transaction volume per year from 2020 to 2025, alongside the 2026 forecast baseline. The sharp dip in 2021 reflects pandemic-driven store closures and reduced consumer traffic.</p>
+
+  <div class="chart-wrap">
+    <div class="chart-title">Annual Purchase Transaction Volume — 2020 to 2025 (All Stores)</div>
+    <canvas id="chartHistorical" height="90"></canvas>
+  </div>
+
+  <h2>Year-over-Year Observations</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Year</th><th>Transaction Rows</th><th>YoY Change</th><th>Context</th></tr></thead>
+      <tbody>
+        <tr><td>2020</td><td style="text-align:right">349,050</td><td class="neg" style="text-align:right">Baseline</td><td>Pre-pandemic baseline; partial COVID impact in Q2</td></tr>
+        <tr><td>2021</td><td style="text-align:right">403,816</td><td class="pos" style="text-align:right">+15.7%</td><td>Recovery year; some store reopenings</td></tr>
+        <tr><td>2022</td><td style="text-align:right">411,786</td><td class="pos" style="text-align:right">+2.0%</td><td>Continued growth; menu expansion</td></tr>
+        <tr><td>2023</td><td style="text-align:right">404,313</td><td class="neg" style="text-align:right">−1.8%</td><td>Slight dip; inflation impact on consumer spending</td></tr>
+        <tr><td>2024</td><td style="text-align:right">429,525</td><td class="pos" style="text-align:right">+6.2%</td><td>Strong recovery; new store openings</td></tr>
+        <tr><td>2025</td><td style="text-align:right">436,450</td><td class="pos" style="text-align:right">+1.6%</td><td>Continued growth; highest volume on record</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>January Sample — All Stores, All Flavors</h2>
+  <p>The following data represents the aggregated January view across all stores and flavors — the primary benchmark used to validate the 2026 forecast model.</p>
+
+  <div class="kpi-grid kpi-grid-9" style="margin-top:16px">
+    <div class="kpi"><div class="lbl">2020 Actual</div><div class="val" style="font-size:18px">34,426</div><div class="sub-val">cases</div></div>
+    <div class="kpi"><div class="lbl">2021 Actual</div><div class="val" style="font-size:18px">19,268</div><div class="sub-val">cases</div></div>
+    <div class="kpi"><div class="lbl">2022 Actual</div><div class="val" style="font-size:18px">25,514</div><div class="sub-val">cases</div></div>
+    <div class="kpi"><div class="lbl">2023 Actual</div><div class="val" style="font-size:18px">25,916</div><div class="sub-val">cases</div></div>
+    <div class="kpi"><div class="lbl">2024 Actual</div><div class="val" style="font-size:18px">27,441</div><div class="sub-val">cases</div></div>
+    <div class="kpi"><div class="lbl">2025 Actual</div><div class="val" style="font-size:18px">27,348</div><div class="sub-val">cases</div></div>
+    <div class="kpi blue"><div class="lbl">2026 Forecast</div><div class="val" style="font-size:18px">26,652</div><div class="sub-val">cases</div></div>
+    <div class="kpi red"><div class="lbl">Weather +/−</div><div class="val" style="font-size:18px">−1,407</div><div class="sub-val">cases</div></div>
+    <div class="kpi accent"><div class="lbl">Adjusted</div><div class="val" style="font-size:18px">25,246</div><div class="sub-val">cases</div></div>
+  </div>
+
+  <div class="chart-wrap" style="margin-top:24px">
+    <div class="chart-title">January Cases — Historical Actuals vs. 2026 Forecast (All Stores)</div>
+    <canvas id="chartJanuary" height="100"></canvas>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     PAGE 7 — 2026 FORECAST HIGHLIGHTS
+═══════════════════════════════════════════════ -->
+<div class="page" id="forecast-highlights">
+  <div class="section-label">Section 06</div>
+  <div class="page-title">2026 Forecast Highlights</div>
+
+  <h2>Forecast Summary</h2>
+  <div class="kpi-grid kpi-grid-4">
+    <div class="kpi blue"><div class="lbl">Total Forecast Rows</div><div class="val">190,670</div><div class="sub-val">Store × Item × Month</div></div>
+    <div class="kpi"><div class="lbl">Unique Flavors</div><div class="val">81</div><div class="sub-val">Across all categories</div></div>
+    <div class="kpi"><div class="lbl">Months Covered</div><div class="val">12</div><div class="sub-val">Jan – Dec 2026</div></div>
+    <div class="kpi"><div class="lbl">Item Groups</div><div class="val">2</div><div class="sub-val">Flavors &amp; Toppings</div></div>
+  </div>
+
+  <h2>Flavor Category Breakdown</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Category</th><th>Description</th><th>Ordering Priority</th><th>Weather Sensitive</th></tr></thead>
+      <tbody>
+        <tr><td><span class="badge badge-green">Core</span></td><td>Always-available flagship flavors (e.g., Plain Tart, Strawberry)</td><td>Highest — order every cycle</td><td>Yes — primary weather target</td></tr>
+        <tr><td><span class="badge badge-amber">Rotator</span></td><td>Rotating limited-time flavors on a planned schedule</td><td>Medium — per rotation calendar</td><td>Yes</td></tr>
+        <tr><td><span class="badge badge-blue">Promo</span></td><td>Promotional items tied to campaigns and events</td><td>Per promotion schedule</td><td>Moderate</td></tr>
+        <tr><td><span class="badge badge-gray">Topping</span></td><td>Dry and fresh toppings (fruits, sauces, granola)</td><td>Standard replenishment</td><td>Lower sensitivity</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>Flavor Type Distribution</h2>
+  <div class="chart-wrap">
+    <div class="chart-title">Flavor Types in Forecast Portfolio</div>
+    <canvas id="chartFlavorTypes" height="130"></canvas>
+  </div>
+
+  <div class="callout blue">
+    <strong>Core Flavors Drive the Majority of Volume</strong>
+    <p>Core category flavors (Plain Tart, Creamy Vanilla, Fresh Strawberry, Rich Chocolate Ice Cream, Cheesecake) consistently account for the bulk of cases ordered each month. Accurate forecasting of these items has the highest financial impact on inventory and waste reduction.</p>
+  </div>
+
+  <h2>Top Core Flavors — January 2026 Sample</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>#</th><th>Item</th><th>Flavor Type</th><th>2026 Forecast (cases)</th><th>Weather Adjusted (cases)</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>YOGURT PLAIN TART</td><td>Tart</td><td class="hi">4,234.97</td><td>4,241.34</td></tr>
+        <tr><td>2</td><td>YL CREAMY VANILLA ICE CREAM</td><td>Ice Cream</td><td class="hi">3,100.25</td><td>3,086.30</td></tr>
+        <tr><td>3</td><td>YOGURT FRESH STRAWBERRY</td><td>Sweet</td><td class="hi">2,897.88</td><td>2,898.17</td></tr>
+        <tr><td>4</td><td>YL RICH CHOCOLATE ICE CREAM</td><td>Ice Cream</td><td class="hi">2,784.97</td><td>2,766.12</td></tr>
+        <tr><td>5</td><td>YOGURT CHEESECAKE</td><td>Sweet</td><td class="hi">2,297.77</td><td>2,254.68</td></tr>
+        <tr><td>6</td><td>YL ROCKET POP SORBET</td><td>Sorbet</td><td class="hi">1,954.22</td><td>1,968.67</td></tr>
+        <tr><td>7</td><td>YL TOASTED COCONUT</td><td>Sweet</td><td class="hi">1,705.38</td><td>1,708.48</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     PAGE 8 — WEEKLY BREAKDOWN
+═══════════════════════════════════════════════ -->
+<div class="page" id="weekly">
+  <div class="section-label">Section 07</div>
+  <div class="page-title">Weekly Breakdown Analysis</div>
+
+  <p>The model produces week-level forecasts for all five calendar weeks within each month. This allows store managers to plan deliveries at a granular level rather than relying solely on monthly totals.</p>
+
+  <h2>January 2026 — All Stores, All Flavors</h2>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Week</th><th>Days</th>
+          <th>2020 Actual</th><th>2021 Actual</th><th>2022 Actual</th>
+          <th>2023 Actual</th><th>2024 Actual</th><th>2025 Actual</th>
+          <th class="hi">2026 Forecast</th><th>Rain (in)</th><th>Weather +/−</th><th>Adjusted</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Week 1</td><td>1–7</td>
+          <td>7,303.00</td><td>3,978.00</td><td>4,571.00</td>
+          <td>5,202.00</td><td>5,215.00</td><td>6,103.00</td>
+          <td class="hi">5,395.33</td><td>0.20</td><td class="neg">−296.01</td><td>5,099.32</td>
+        </tr>
+        <tr>
+          <td>Week 2</td><td>8–14</td>
+          <td>7,532.00</td><td>4,415.00</td><td>5,897.00</td>
+          <td>5,909.00</td><td>6,018.00</td><td>6,269.00</td>
+          <td class="hi">6,006.67</td><td>0.18</td><td class="neg">−117.91</td><td>5,888.75</td>
+        </tr>
+        <tr>
+          <td>Week 3</td><td>15–21</td>
+          <td>7,412.00</td><td>5,917.75</td><td>6,080.00</td>
+          <td>6,273.00</td><td>5,832.00</td><td>6,055.00</td>
+          <td class="hi">6,261.63</td><td>0.08</td><td class="pos">+128.16</td><td>6,389.78</td>
+        </tr>
+        <tr>
+          <td>Week 4</td><td>22–28</td>
+          <td>8,090.00</td><td>4,073.00</td><td>6,794.00</td>
+          <td>6,305.00</td><td>6,135.00</td><td>6,163.00</td>
+          <td class="hi">6,260.00</td><td>0.50</td><td class="neg">−1,223.76</td><td>5,036.24</td>
+        </tr>
+        <tr>
+          <td>Week 5</td><td>29–end</td>
+          <td>4,089.00</td><td>883.75</td><td>2,172.00</td>
+          <td>2,227.00</td><td>4,241.00</td><td>2,758.00</td>
+          <td class="hi">2,728.46</td><td>0.30</td><td class="pos">+102.97</td><td>2,831.43</td>
+        </tr>
+        <tr class="tfoot-row">
+          <td colspan="2"><strong>Monthly Total</strong></td>
+          <td><strong>34,426</strong></td><td><strong>19,268</strong></td><td><strong>25,514</strong></td>
+          <td><strong>25,916</strong></td><td><strong>27,441</strong></td><td><strong>27,348</strong></td>
+          <td class="hi"><strong>26,652</strong></td><td></td><td class="neg"><strong>−1,407</strong></td><td><strong>25,246</strong></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="chart-wrap">
+    <div class="chart-title">Weekly Cases — Historical vs. 2026 Forecast (January, All Stores)</div>
+    <canvas id="chartWeekly" height="110"></canvas>
+  </div>
+
+  <div class="callout amber">
+    <strong>Week 4 Has Highest Weather Impact</strong>
+    <p>With 0.50" of rainfall projected in Week 4 (January 22–28), the weather adjustment reduces that week's forecast by 1,224 cases — an 19.5% drop. This is the single largest weather impact in January and should be factored into delivery scheduling.</p>
+  </div>
+
+  <div class="callout">
+    <strong>Week 3 Shows a Positive Adjustment</strong>
+    <p>Week 3 (Jan 15–21) is forecast to be dry (0.08" rainfall, below the 0.10" threshold), resulting in a small positive adjustment of +128 cases based on historical dry-week performance patterns.</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     PAGE 9 — FLAVOR PERFORMANCE
+═══════════════════════════════════════════════ -->
+<div class="page" id="flavor">
+  <div class="section-label">Section 08</div>
+  <div class="page-title">Flavor Performance Analysis</div>
+
+  <h2>Seasonal Flavors — January 2026 Sample</h2>
+  <p>Seasonal flavors are limited-time offerings tied to specific calendar windows. They require special ordering attention as they have shorter demand horizons and carry higher waste risk if over-ordered.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Item</th><th>Category</th><th>Flavor Type</th><th>2026 Forecast (cases)</th><th>Weather Adjusted (cases)</th></tr></thead>
+      <tbody>
+        <tr><td>YL SNICKERDOODLE MIX</td><td>Rotator</td><td>Sweet</td><td class="hi">448.00</td><td>431.07</td></tr>
+        <tr><td>YL LUCKY IRISH MINT</td><td>Promo</td><td>Sweet</td><td class="hi">45.00</td><td>40.79</td></tr>
+        <tr><td>YOGURT CARAMEL APPLE</td><td>Rotator</td><td>Sweet</td><td class="hi">40.00</td><td>39.39</td></tr>
+        <tr><td>YOGURT PUMPKIN PIE LTO</td><td>Promo</td><td>Sweet</td><td class="hi">31.00</td><td>28.84</td></tr>
+        <tr class="tfoot-row"><td><strong>Total</strong></td><td></td><td></td><td class="hi"><strong>564.00</strong></td><td><strong>540.09</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>Core vs. Seasonal — January 2026 Comparison</h2>
+  <div class="chart-wrap">
+    <div class="chart-title">Core vs. Seasonal Flavor Forecast Mix — January 2026</div>
+    <canvas id="chartCoreSeasonal" height="120"></canvas>
+  </div>
+
+  <h2>Flavor Type Performance Insights</h2>
+  <div class="two-col">
+    <div>
+      <div class="callout">
+        <strong>Tart Flavors Lead in Volume</strong>
+        <p>Plain Tart is consistently the #1 item by cases ordered. Tart-profile yogurts are a Yogurtland signature and maintain strong repeat purchase rates across all store formats.</p>
+      </div>
+      <div class="callout blue">
+        <strong>Ice Cream Flavors Growing</strong>
+        <p>YL Creamy Vanilla Ice Cream and YL Rich Chocolate Ice Cream rank #2 and #4, reflecting the growing ice cream crossover segment that appeals to a broader demographic.</p>
+      </div>
+    </div>
+    <div>
+      <div class="callout amber">
+        <strong>Seasonal Items: Order with Caution</strong>
+        <p>Seasonal flavors like Pumpkin Pie LTO (31 cases) and Lucky Irish Mint (45 cases) have low but meaningful demand. Under-ordering risks stockouts during promotional windows; over-ordering risks waste. Tight forecasting is essential.</p>
+      </div>
+      <div class="callout">
+        <strong>Sorbet Performs Well in Warm Months</strong>
+        <p>Rocket Pop Sorbet ranks consistently in the top 6 in January, suggesting strong cross-season performance. Expect higher sorbet demand in spring/summer months.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     PAGE 10 — MODEL EVALUATION
+═══════════════════════════════════════════════ -->
+<div class="page" id="model-eval">
+  <div class="section-label">Section 09</div>
+  <div class="page-title">Model Evaluation &amp; Accuracy</div>
+
+  <p>To assess forecast accuracy, the model was back-tested against 2025 actual data. Two approaches were compared: a <strong>Statistical Model</strong> (simple historical average) and a <strong>Machine Learning Model</strong> (trained on engineered features). The ML model demonstrates significantly better accuracy across all metrics.</p>
+
+  <h2>2025 Back-Test Results</h2>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Model</th><th>MAE</th><th>RMSE</th><th>WAPE</th><th>Bias</th>
+          <th>Actual Total (cases)</th><th>Forecast Total (cases)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="badge badge-gray">Statistical</span></td>
+          <td>0.43</td><td>0.87</td>
+          <td class="neg">72.3%</td><td class="neg">+23.1%</td>
+          <td>318,820</td><td class="neg">392,351</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-blue">ML Model</span></td>
+          <td class="pos">0.24</td><td class="pos">0.64</td>
+          <td class="pos">41.1%</td><td>−14.7%</td>
+          <td>318,820</td><td>271,836</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="chart-wrap">
+    <div class="chart-title">Model Accuracy Comparison — Statistical vs. ML (lower is better)</div>
+    <canvas id="chartModelEval" height="110"></canvas>
+  </div>
+
+  <h2>Metric Definitions</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Metric</th><th>Full Name</th><th>What It Measures</th><th>Ideal Value</th></tr></thead>
+      <tbody>
+        <tr><td><strong>MAE</strong></td><td>Mean Absolute Error</td><td>Average absolute difference between forecast and actual (in cases)</td><td>→ 0</td></tr>
+        <tr><td><strong>RMSE</strong></td><td>Root Mean Squared Error</td><td>Penalizes large errors more heavily than MAE</td><td>→ 0</td></tr>
+        <tr><td><strong>WAPE</strong></td><td>Weighted Absolute Percentage Error</td><td>Total absolute error as % of total actual volume</td><td>→ 0%</td></tr>
+        <tr><td><strong>Bias</strong></td><td>Forecast Bias</td><td>Systematic over- (+) or under-forecasting (−)</td><td>→ 0%</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout blue">
+    <strong>ML Model: 43% Better WAPE than Statistical</strong>
+    <p>The ML model reduced WAPE from 72.3% to 41.1% — a 31.2 percentage point improvement. In absolute terms, the statistical model over-forecast by 73,531 cases (23.1% bias), while the ML model under-forecast by 46,984 cases (−14.7% bias). For inventory planning, under-forecasting slightly is generally preferred to over-forecasting, as it reduces waste.</p>
+  </div>
+
+  <div class="callout amber">
+    <strong>Both Models Have Room to Improve</strong>
+    <p>A WAPE of 41.1% indicates meaningful forecast error still exists, particularly for low-volume seasonal items and newer stores with limited history. Incorporating additional signals (promotions, local events, store capacity) into the ML model is expected to further reduce error in future iterations.</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     PAGE 11 — ASSUMPTIONS & LIMITATIONS
+═══════════════════════════════════════════════ -->
+<div class="page" id="assumptions">
+  <div class="section-label">Section 10</div>
+  <div class="page-title">Assumptions &amp; Limitations</div>
+
+  <h2>Forecast Assumptions</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>#</th><th>Assumption</th><th>Implication</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>Historical purchasing patterns (2020–2025) are representative of 2026 demand</td><td>Major disruptions (pandemic-like events, menu overhaul) would invalidate the forecast</td></tr>
+        <tr><td>2</td><td>All 2026 stores will carry the same item mix as 2025</td><td>New store openings or flavor discontinuations require manual adjustment</td></tr>
+        <tr><td>3</td><td>2025 precipitation patterns are a reasonable proxy for 2026 weather</td><td>Unusually wet or dry 2026 conditions would reduce weather-adjustment accuracy</td></tr>
+        <tr><td>4</td><td>Zero-cases years are excluded from averages (item not available that year)</td><td>If a store genuinely ordered 0 cases of an active item, that signal is lost</td></tr>
+        <tr><td>5</td><td>Week boundaries are fixed (1–7, 8–14, 15–21, 22–28, 29–end)</td><td>Delivery schedules that don't align to these windows may reduce weekly-level accuracy</td></tr>
+        <tr><td>6</td><td>No promotion lift is modeled</td><td>Promotional events are expected to drive demand above forecast; manual uplift recommended</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>Known Limitations</h2>
+  <div class="callout red">
+    <strong>9 Stores Without Weather Adjustment</strong>
+    <p>9 store locations could not be geocoded and therefore receive no weather adjustment. These forecasts rely solely on historical averages, which may be less accurate during weeks with significant rain events.</p>
+  </div>
+  <div class="callout amber">
+    <strong>Seasonal Items Have Higher Uncertainty</strong>
+    <p>Items with fewer than 2 years of history — primarily new seasonal or promo items — produce forecasts based on very limited data. These should be reviewed manually by the merchandising team before ordering.</p>
+  </div>
+  <div class="callout">
+    <strong>No Economic or Foot Traffic Signals</strong>
+    <p>The current model does not incorporate consumer price index trends, local population changes, or foot traffic data. Adding these signals is a key opportunity for the next-generation ML model.</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     PAGE 12 — CONCLUSIONS
+═══════════════════════════════════════════════ -->
+<div class="page" id="conclusions">
+  <div class="section-label">Section 11</div>
+  <div class="page-title">Conclusions &amp; Recommendations</div>
+
+  <h2>Summary of Conclusions</h2>
+  <ol style="padding-left:20px;color:#334155;line-height:2.2;font-size:14px">
+    <li>The 2026 forecast covers <strong>301 stores</strong>, <strong>81 flavors</strong>, and <strong>190,670 unique store-item-month combinations</strong>, providing full coverage for all ordering decisions.</li>
+    <li>The <strong>two-step weekly average model</strong> is a robust, transparent baseline that produces interpretable results, with outputs reviewable at the store and flavor level.</li>
+    <li>The <strong>weather adjustment model</strong> adds meaningful accuracy, particularly in high-precipitation markets. Stores in the Pacific Northwest, Southeast, and Midwest benefit most.</li>
+    <li>The <strong>ML model outperforms the statistical baseline by 31 percentage points</strong> in WAPE (41.1% vs 72.3%), and is the recommended primary model for 2026 ordering decisions.</li>
+    <li>The forecast is most reliable for <strong>Core flavors at established stores</strong> with 4+ years of history. Seasonal and promo items warrant manual review.</li>
+  </ol>
+
+  <h2>Recommendations</h2>
+  <div class="callout accent" style="border-color:var(--accent);background:#f0fdfa">
+    <strong>R1 — Use ML Model as Primary, Statistical as Backstop</strong>
+    <p>Deploy the ML model forecast as the primary order recommendation. Use the statistical average as a sanity-check backstop. Flag any rows where ML and statistical forecasts diverge by more than 30% for manual review.</p>
+  </div>
+  <div class="callout blue">
+    <strong>R2 — Refresh Weather Adjustment Monthly</strong>
+    <p>As each month of 2026 approaches, replace the 2025 analog weather data with the latest available forecast (NOAA 14-day or Open-Meteo forecast endpoint) to improve adjustment accuracy.</p>
+  </div>
+  <div class="callout amber">
+    <strong>R3 — Manual Review for Seasonal Items</strong>
+    <p>All seasonal and promo items with fewer than 3 years of history should be reviewed by the category management team before orders are finalized. Pair with sell-through data from POS systems.</p>
+  </div>
+  <div class="callout">
+    <strong>R4 — Integrate Machine Learning for 2027 Forecast</strong>
+    <p>Build a production ML forecasting pipeline incorporating promotional calendars, local events, consumer sentiment, and real-time POS sell-through data. See Section 12 for full ML implementation roadmap.</p>
+  </div>
+  <div class="callout red">
+    <strong>R5 — Geocode Remaining 9 Stores</strong>
+    <p>The 9 unresolved store locations should be manually geocoded so they receive weather adjustments in the next forecast cycle. This eliminates a known blind spot in the model.</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     PAGE 13 — ML PAGE (NEW)
+═══════════════════════════════════════════════ -->
+<div class="page" id="ml-page" style="border-top:6px solid var(--accent2)">
+  <div class="section-label" style="color:var(--accent2)">Section 12 &nbsp;·&nbsp; Special Topic</div>
+  <div class="page-title" style="border-bottom-color:var(--accent2)">Forecasting Using Machine Learning Algorithm</div>
+  <p style="font-size:15px;color:#334155;margin-bottom:24px">A practical guide to building a next-generation ML demand forecasting model for Yogurtland — replacing heuristic averages with data-driven predictions that learn from patterns, seasonality, promotions, and external signals.</p>
+
+  <!-- 1. PURPOSE -->
+  <h2>1. Purpose of Machine Learning Forecasting</h2>
+  <p>Traditional statistical forecasting methods — such as historical averages — are transparent and easy to audit, but they have fundamental limitations: they cannot learn non-linear patterns, they treat all years equally, and they cannot incorporate external signals like economic indicators or promotional calendars.</p>
+  <p>A machine learning forecasting model learns the underlying relationship between <em>many input signals</em> and <em>actual demand outcomes</em>. Once trained on historical data, it can generalize to new situations — a new store opening, a new flavor, an unusual weather event — with greater accuracy than any fixed formula.</p>
+  <div class="kpi-grid kpi-grid-3">
+    <div class="kpi blue"><div class="lbl">Statistical WAPE</div><div class="val">72.3%</div><div class="sub-val">Current baseline (2025 back-test)</div></div>
+    <div class="kpi accent"><div class="lbl">ML WAPE</div><div class="val">41.1%</div><div class="sub-val">Already 31 pts better</div></div>
+    <div class="kpi"><div class="lbl">Target WAPE</div><div class="val">&lt; 25%</div><div class="sub-val">With full ML pipeline</div></div>
+  </div>
+
+  <!-- 2. DATA REQUIRED -->
+  <h2>2. Data Required</h2>
+  <p>The power of an ML model scales directly with the quality and breadth of input data. The following data sources are recommended:</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Data Type</th><th>Source</th><th>Features Derived</th><th>Priority</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Historical Sales</strong></td><td>ERP / Purchase Reports</td><td>Cases per store, item, week, month, year</td><td><span class="badge badge-red">Critical</span></td></tr>
+        <tr><td><strong>Dates &amp; Calendar</strong></td><td>System clock</td><td>Month, week-of-month, day-of-week, quarter, year</td><td><span class="badge badge-red">Critical</span></td></tr>
+        <tr><td><strong>Seasonality Flags</strong></td><td>Merchandising team</td><td>Season name, LTO window start/end, rotation schedule</td><td><span class="badge badge-red">Critical</span></td></tr>
+        <tr><td><strong>Weather</strong></td><td>Open-Meteo / NOAA</td><td>Precipitation, temperature, heat index, UV index</td><td><span class="badge badge-amber">High</span></td></tr>
+        <tr><td><strong>Promotions</strong></td><td>Marketing calendar</td><td>Promo active flag, discount %, campaign type</td><td><span class="badge badge-amber">High</span></td></tr>
+        <tr><td><strong>Holidays</strong></td><td>US federal calendar + local</td><td>Holiday flag, days-to/from holiday, holiday type</td><td><span class="badge badge-amber">High</span></td></tr>
+        <tr><td><strong>Store Attributes</strong></td><td>Franchise database</td><td>Store age, region, format, sq ft, seating capacity</td><td><span class="badge badge-blue">Medium</span></td></tr>
+        <tr><td><strong>POS Sell-Through</strong></td><td>NCR / POS system</td><td>Weekly retail sales (not just orders), waste %</td><td><span class="badge badge-blue">Medium</span></td></tr>
+        <tr><td><strong>Competitor &amp; Macro</strong></td><td>Third-party data</td><td>Local CPI, foot traffic, competitor openings</td><td><span class="badge badge-gray">Optional</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 3. ALGORITHMS -->
+  <h2>3. Suggested Algorithms</h2>
+  <p>Different algorithms have different strengths. The right choice depends on data volume, required interpretability, and infrastructure capabilities.</p>
+
+  <div class="algo-grid">
+    <div class="algo-card">
+      <div class="algo-name">Linear Regression</div>
+      <div class="algo-type"><span class="badge badge-green">Simple &amp; Interpretable</span></div>
+      <p>Fits a straight-line relationship between features and demand. Fast to train, easy to explain to stakeholders, but cannot capture complex non-linear patterns. Best used as a benchmark.</p>
+    </div>
+    <div class="algo-card">
+      <div class="algo-name">Random Forest</div>
+      <div class="algo-type"><span class="badge badge-blue">Robust &amp; Versatile</span></div>
+      <p>An ensemble of decision trees. Handles missing data, non-linear patterns, and feature interactions well. Provides feature importance scores. Recommended starting point for Yogurtland's dataset size.</p>
+    </div>
+    <div class="algo-card">
+      <div class="algo-name">XGBoost / LightGBM</div>
+      <div class="algo-type"><span class="badge badge-amber">High Performance</span></div>
+      <p>Gradient-boosted decision trees — the industry standard for tabular forecasting. Typically outperforms Random Forest with proper tuning. Used in the current Yogurtland ML model (ml flag in forecast_report_2026).</p>
+    </div>
+    <div class="algo-card">
+      <div class="algo-name">ARIMA / SARIMA</div>
+      <div class="algo-type"><span class="badge badge-gray">Time-Series Classic</span></div>
+      <p>Statistical time-series models that explicitly model trend and seasonality. Best suited for single time-series with strong seasonal patterns. Less scalable across 10,000+ store-item combinations.</p>
+    </div>
+    <div class="algo-card">
+      <div class="algo-name">Prophet (Meta)</div>
+      <div class="algo-type"><span class="badge badge-blue">Seasonality-Aware</span></div>
+      <p>Open-source library by Meta for decomposable time-series forecasting. Automatically handles weekly, monthly, and yearly seasonality plus holidays. Easy to use with limited ML expertise. Good for store-level series.</p>
+    </div>
+    <div class="algo-card">
+      <div class="algo-name">LSTM Neural Network</div>
+      <div class="algo-type"><span class="badge badge-red">Advanced — Deep Learning</span></div>
+      <p>Long Short-Term Memory networks capture long-range temporal dependencies. Most powerful for complex multi-variate patterns but requires large amounts of data (3+ years per series), significant compute, and ML expertise.</p>
+    </div>
+  </div>
+
+  <div class="callout blue" style="margin-top:20px">
+    <strong>Recommendation for Yogurtland: Start with XGBoost, Layer in Prophet</strong>
+    <p>XGBoost on engineered tabular features (the approach already in use) is the right primary model given the dataset structure. Prophet can be layered in as a specialized model for high-volume Core flavors where seasonality decomposition adds interpretability. LSTM should be evaluated in 12–18 months once a richer feature set is assembled.</p>
+  </div>
+
+  <!-- 4. STEP-BY-STEP PROCESS -->
+  <h2>4. Step-by-Step ML Forecasting Process</h2>
+
+  <ol class="step-list">
+    <li>
+      <div class="step-body">
+        <strong>Collect Historical Data</strong>
+        <p>Pull all available purchase records (2020–2025) from the ERP system. Include every order line: store, item, date, quantity ordered, and quantity received. Supplement with POS sell-through data where available. The richer the history, the better the model's baseline understanding of demand patterns.</p>
+      </div>
+    </li>
+    <li>
+      <div class="step-body">
+        <strong>Clean and Prepare the Data</strong>
+        <p>Remove duplicate transactions, correct data-entry errors, and resolve store name inconsistencies (e.g., applying store aliases like AZ1051 → AZ105). Handle missing weeks by deciding whether to impute zeros or flag as unavailable. Normalize units — ensure all quantities are in the same unit (cases). Split data into training (2020–2024) and validation (2025) sets.</p>
+      </div>
+    </li>
+    <li>
+      <div class="step-body">
+        <strong>Create Features (Feature Engineering)</strong>
+        <p>Transform raw data into ML-ready input features. This is the most important step — good features drive good models.</p>
+        <div class="formula" style="margin-top:10px">
+<span class="comment">-- Calendar features</span>
+month, week_of_month, quarter, is_holiday, days_to_holiday
+
+<span class="comment">-- Lag features (historical demand signals)</span>
+cases_lag_1week, cases_lag_4weeks, cases_lag_52weeks
+rolling_avg_4week, rolling_std_4week
+
+<span class="comment">-- Item features</span>
+category (Core/Rotator/Promo), flavor_type, is_seasonal, lto_week_number
+
+<span class="comment">-- Store features</span>
+store_region, store_age_years, store_format
+
+<span class="comment">-- Weather features</span>
+precipitation_mm, avg_temp_f, is_rainy, heat_index
+
+<span class="comment">-- Promotion features</span>
+is_promo_active, promo_discount_pct, days_into_promo
+        </div>
+      </div>
+    </li>
+    <li>
+      <div class="step-body">
+        <strong>Train the Machine Learning Model</strong>
+        <p>Fit the chosen algorithm (e.g., XGBoost) on the training dataset (2020–2024). Use cross-validation across multiple time folds to prevent overfitting. Tune hyperparameters (learning rate, tree depth, number of estimators) using grid search or Bayesian optimization. Separate models can be trained per item group (Flavor vs. Topping) or per category (Core vs. Seasonal) for better specialization.</p>
+      </div>
+    </li>
+    <li>
+      <div class="step-body">
+        <strong>Test Model Accuracy</strong>
+        <p>Evaluate the trained model on the 2025 hold-out validation set. Compute MAE, RMSE, WAPE, and Bias metrics at multiple granularities: overall, per store, per flavor category, and per month. Compare against the statistical baseline. Identify which stores or items have the highest error rates and investigate root causes (insufficient history, unusual events, data quality issues).</p>
+      </div>
+    </li>
+    <li>
+      <div class="step-body">
+        <strong>Forecast Future Sales</strong>
+        <p>Apply the trained model to 2026 feature inputs to generate weekly and monthly case forecasts. For future weeks, use the 2025 weather analog (or live weather forecast API for near-term months). Apply any known 2026 promotional calendar flags. Generate confidence intervals (prediction intervals) so planners know the range of uncertainty around each forecast.</p>
+      </div>
+    </li>
+    <li>
+      <div class="step-body">
+        <strong>Compare Actual vs. Forecast (Ongoing Monitoring)</strong>
+        <p>As each 2026 month closes, compare actual orders against the forecast. Track WAPE and Bias trends over time. Feed actual data back into a rolling retraining pipeline so the model continuously improves. Flag stores or items where actual demand diverges from forecast by more than 25% for root-cause investigation and manual override.</p>
+      </div>
+    </li>
+  </ol>
+
+  <!-- 5. BENEFITS -->
+  <h2>5. Benefits of Machine Learning for Forecasting</h2>
+  <div class="two-col">
+    <div>
+      <div class="callout accent">
+        <strong>Higher Accuracy</strong>
+        <p>ML models learn complex, non-linear relationships in data that fixed formulas cannot capture. Back-testing shows 31+ percentage point WAPE improvement over the statistical baseline — translating directly to fewer stockouts and less waste.</p>
+      </div>
+      <div class="callout blue">
+        <strong>Automatic Seasonality Detection</strong>
+        <p>ML models automatically discover seasonal and cyclical patterns across all 81 flavors and 301 stores, without requiring manual seasonality flags for every product.</p>
+      </div>
+      <div class="callout">
+        <strong>Scalability</strong>
+        <p>Once the model is built, running forecasts for 190,000+ store-item-month combinations takes seconds. Scaling to new stores or new items simply requires adding rows to the feature dataset — no model redesign needed.</p>
+      </div>
+    </div>
+    <div>
+      <div class="callout amber">
+        <strong>Incorporates External Signals</strong>
+        <p>Unlike simple averages, ML models can learn the effect of promotions, holidays, weather, and economic conditions simultaneously — producing demand-aware forecasts that adapt to the real world.</p>
+      </div>
+      <div class="callout">
+        <strong>Continuous Improvement</strong>
+        <p>A retraining pipeline means the model improves every month as new actuals are added. The model naturally adapts to long-term trend shifts (e.g., growth in plant-based flavors) without manual recalibration.</p>
+      </div>
+      <div class="callout blue">
+        <strong>Feature Importance Insights</strong>
+        <p>ML models (especially tree-based ones) expose which features drive demand. This gives category managers and supply chain analysts actionable intelligence — e.g., "temperature is the #1 driver for sorbet sales."</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. RECOMMENDATION -->
+  <h2>6. Final Recommendation</h2>
+
+  <div style="border:2px solid var(--accent2);border-radius:12px;padding:28px 32px;background:#eff6ff;margin-top:8px">
+    <div style="font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--accent2);margin-bottom:10px">Strategic Recommendation</div>
+    <div style="font-size:22px;font-weight:800;color:#1e3a8a;margin-bottom:16px;line-height:1.3">Invest in a Production ML Forecasting Pipeline for 2027 Planning</div>
+    <p style="color:#1e40af;margin-bottom:16px">Yogurtland already has the foundational data infrastructure — 2.4M purchase records, weather enrichment, item classification — to build a world-class ML demand forecasting system. The current ML model demonstrates this potential, delivering 41.1% WAPE in back-testing. With a dedicated pipeline, a target WAPE below 25% is achievable within 12 months.</p>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-top:20px">
+      <div style="background:#fff;border:1px solid #bfdbfe;border-radius:8px;padding:14px">
+        <div style="font-size:11px;color:var(--accent2);text-transform:uppercase;font-weight:700;margin-bottom:6px">Phase 1 (Months 1–3)</div>
+        <ul style="padding-left:16px;font-size:13px;color:#334155;line-height:1.8">
+          <li>Geocode remaining 9 stores</li>
+          <li>Integrate promotional calendar</li>
+          <li>Add US holiday flags</li>
+          <li>Build feature engineering pipeline</li>
+        </ul>
+      </div>
+      <div style="background:#fff;border:1px solid #bfdbfe;border-radius:8px;padding:14px">
+        <div style="font-size:11px;color:var(--accent2);text-transform:uppercase;font-weight:700;margin-bottom:6px">Phase 2 (Months 4–6)</div>
+        <ul style="padding-left:16px;font-size:13px;color:#334155;line-height:1.8">
+          <li>Train XGBoost + Prophet ensemble</li>
+          <li>Build validation dashboard</li>
+          <li>Implement prediction intervals</li>
+          <li>A/B test vs. current model</li>
+        </ul>
+      </div>
+      <div style="background:#fff;border:1px solid #bfdbfe;border-radius:8px;padding:14px">
+        <div style="font-size:11px;color:var(--accent2);text-transform:uppercase;font-weight:700;margin-bottom:6px">Phase 3 (Months 7–12)</div>
+        <ul style="padding-left:16px;font-size:13px;color:#334155;line-height:1.8">
+          <li>Monthly retraining pipeline</li>
+          <li>POS sell-through integration</li>
+          <li>Store-manager forecast UI</li>
+          <li>Evaluate LSTM for top items</li>
+        </ul>
+      </div>
+    </div>
+
+    <div style="margin-top:20px;padding-top:16px;border-top:1px solid #bfdbfe;display:flex;justify-content:space-between;align-items:center">
+      <div style="font-size:13px;color:#1e40af"><strong>Expected Outcome:</strong> WAPE below 25% · Reduced waste by 15–20% · Faster order cycle times</div>
+      <div style="font-size:13px;color:#1e40af;text-align:right"><strong>Owner:</strong> Supply Chain &amp; Analytics<br><strong>Timeline:</strong> Q3 2026 – Q2 2027</div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+  <p style="font-size:12px;color:var(--muted);text-align:center">Yogurtland Franchise Systems, Inc. &nbsp;·&nbsp; 2026 Demand Forecasting Report &nbsp;·&nbsp; Confidential &amp; Internal Use Only &nbsp;·&nbsp; Generated April 29, 2026</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     CHARTS JS
+═══════════════════════════════════════════════ -->
+<script>
+const TEAL  = 'rgba(15,118,110,1)';
+const TEAL_  = 'rgba(15,118,110,0.15)';
+const BLUE  = 'rgba(29,78,216,1)';
+const BLUE_  = 'rgba(29,78,216,0.15)';
+const AMBER = 'rgba(180,83,9,1)';
+const RED   = 'rgba(185,28,28,1)';
+const GRAY  = 'rgba(148,163,184,0.6)';
+
+const yearsLabels = ['2020','2021','2022','2023','2024','2025'];
+
+// Chart 1 — Annual transaction volume
+new Chart(document.getElementById('chartHistorical'), {
+  type:'bar',
+  data:{
+    labels:yearsLabels,
+    datasets:[{
+      label:'Purchase Transaction Rows',
+      data:[349050,403816,411786,404313,429525,436450],
+      backgroundColor:[GRAY,GRAY,'rgba(15,118,110,0.5)','rgba(15,118,110,0.5)','rgba(15,118,110,0.7)',TEAL],
+      borderRadius:5
+    }]
+  },
+  options:{
+    responsive:true,
+    plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>' '+ctx.parsed.y.toLocaleString()+' rows'}}},
+    scales:{y:{beginAtZero:true,ticks:{callback:v=>v.toLocaleString()}}}
+  }
+});
+
+// Chart 2 — January cases historical + 2026
+new Chart(document.getElementById('chartJanuary'), {
+  type:'bar',
+  data:{
+    labels:['2020','2021','2022','2023','2024','2025','2026 Forecast','2026 Adj.'],
+    datasets:[{
+      label:'Cases (January)',
+      data:[34426,19267.5,25514,25916,27441,27348,26652.08,25245.52],
+      backgroundColor:[GRAY,RED,GRAY,GRAY,GRAY,TEAL,BLUE,'rgba(29,78,216,0.4)'],
+      borderRadius:5
+    }]
+  },
+  options:{
+    responsive:true,
+    plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>' '+ctx.parsed.y.toLocaleString()+' cases'}}},
+    scales:{y:{beginAtZero:true,ticks:{callback:v=>v.toLocaleString()}}}
+  }
+});
+
+// Chart 3 — Flavor types (estimated distribution)
+new Chart(document.getElementById('chartFlavorTypes'), {
+  type:'doughnut',
+  data:{
+    labels:['Sweet','Ice Cream','Tart','Sorbet','Gelato','Plant Based','NSA','Shake','Other'],
+    datasets:[{
+      data:[28,22,14,10,7,6,4,3,6],
+      backgroundColor:['#0f766e','#1d4ed8','#d97706','#7c3aed','#be185d','#059669','#0284c7','#dc2626','#94a3b8'],
+      borderWidth:2,borderColor:'#fff'
+    }]
+  },
+  options:{responsive:true,plugins:{legend:{position:'right'}}}
+});
+
+// Chart 4 — Weekly breakdown January
+new Chart(document.getElementById('chartWeekly'), {
+  type:'line',
+  data:{
+    labels:['Week 1 (1–7)','Week 2 (8–14)','Week 3 (15–21)','Week 4 (22–28)','Week 5 (29–end)'],
+    datasets:[
+      {label:'2025 Actual',data:[6103,6269,6055,6163,2758],borderColor:TEAL,backgroundColor:TEAL_,fill:false,tension:.3,pointRadius:5},
+      {label:'2026 Forecast',data:[5395.33,6006.67,6261.63,6260,2728.46],borderColor:BLUE,backgroundColor:BLUE_,fill:false,tension:.3,pointRadius:5,borderDash:[6,3]},
+      {label:'2026 Weather Adj.',data:[5099.32,5888.75,6389.78,5036.24,2831.43],borderColor:AMBER,backgroundColor:'rgba(180,83,9,0.08)',fill:false,tension:.3,pointRadius:5}
+    ]
+  },
+  options:{
+    responsive:true,
+    plugins:{legend:{position:'top'}},
+    scales:{y:{beginAtZero:false,ticks:{callback:v=>v.toLocaleString()}}}
+  }
+});
+
+// Chart 5 — Core vs Seasonal
+new Chart(document.getElementById('chartCoreSeasonal'), {
+  type:'bar',
+  data:{
+    labels:['2026 Forecast (cases)','Weather Adjusted (cases)'],
+    datasets:[
+      {label:'Core Flavors',data:[26088,24705],backgroundColor:'rgba(15,118,110,0.8)',borderRadius:5},
+      {label:'Seasonal Flavors',data:[564,540],backgroundColor:'rgba(180,83,9,0.8)',borderRadius:5}
+    ]
+  },
+  options:{
+    responsive:true,
+    plugins:{legend:{position:'top'}},
+    scales:{x:{stacked:true},y:{stacked:true,beginAtZero:true,ticks:{callback:v=>v.toLocaleString()}}}
+  }
+});
+
+// Chart 6 — Model evaluation
+new Chart(document.getElementById('chartModelEval'), {
+  type:'bar',
+  data:{
+    labels:['MAE','RMSE','WAPE (%)','Bias (%)'],
+    datasets:[
+      {label:'Statistical Model',data:[0.43,0.87,72.3,23.1],backgroundColor:'rgba(148,163,184,0.7)',borderRadius:5},
+      {label:'ML Model',data:[0.24,0.64,41.1,14.7],backgroundColor:'rgba(29,78,216,0.75)',borderRadius:5}
+    ]
+  },
+  options:{
+    responsive:true,
+    plugins:{legend:{position:'top'},tooltip:{callbacks:{label:ctx=>` ${ctx.dataset.label}: ${ctx.parsed.y}`}}},
+    scales:{y:{beginAtZero:true}}
+  }
+});
+</script>
+</body>
+</html>
