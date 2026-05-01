@@ -1,0 +1,119 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Two-Step Forecast 2026</title>
+<style>
+:root {
+  --ink: #17313b;
+  --muted: #5b6e76;
+  --line: #d5e3e8;
+  --panel: #f8fbfc;
+  --accent: #0f766e;
+  --accent-2: #1d4ed8;
+}
+* { box-sizing: border-box; }
+body { margin: 0; font-family: Segoe UI, Arial, sans-serif; color: var(--ink); background: #fff; }
+header { padding: 24px 28px 16px; border-bottom: 1px solid var(--line); }
+h1 { margin: 0 0 6px; font-size: 26px; }
+p { margin: 4px 0; color: var(--muted); font-size: 13px; }
+main { padding: 22px 28px 36px; }
+.filters { display: grid; grid-template-columns: repeat(2, minmax(220px, 320px)); gap: 12px; margin-bottom: 18px; }
+label { display: block; font-size: 11px; color: var(--muted); text-transform: uppercase; margin-bottom: 4px; }
+select { width: 100%; padding: 9px 10px; border: 1px solid var(--line); border-radius: 6px; background: #fff; }
+.grid { display: grid; grid-template-columns: repeat(3, minmax(180px, 1fr)); gap: 12px; margin-bottom: 18px; }
+.card { border: 1px solid var(--line); border-radius: 8px; background: var(--panel); padding: 12px; }
+.card .label { color: var(--muted); font-size: 11px; text-transform: uppercase; }
+.card .value { margin-top: 5px; font-size: 22px; font-weight: 700; }
+.table-wrap { border: 1px solid var(--line); border-radius: 8px; overflow: auto; margin-top: 14px; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th, td { border-bottom: 1px solid var(--line); padding: 8px 10px; text-align: right; white-space: nowrap; }
+th:first-child, td:first-child, th:nth-child(2), td:nth-child(2) { text-align: left; }
+th { background: #eef6f8; font-size: 12px; }
+.section-title { margin: 20px 0 10px; font-size: 18px; }
+@media (max-width: 900px) {
+  .filters, .grid { grid-template-columns: 1fr; }
+  header, main { padding-left: 16px; padding-right: 16px; }
+}
+</style>
+</head>
+<body>
+<header>
+  <h1>Two-Step Flavor Forecast for 2026</h1>
+  <p>Step 1: monthly forecast = average of the same month from the previous 5 years.</p>
+  <p>Step 2: weekly forecast = monthly forecast split by the 5-year week-of-month sales pattern for that same flavor and store.</p>
+  <p>Week-of-month buckets: days 1-7, 8-14, 15-21, 22-28, 29-end.</p>
+</header>
+<main>
+  <div class="filters">
+    <div><label for="storeFilter">Store / Unit</label><select id="storeFilter"></select></div>
+    <div><label for="monthFilter">Month</label><select id="monthFilter"></select></div>
+  </div>
+  <div class="grid">
+    <div class="card"><div class="label">Flavor Count</div><div class="value" id="flavorCount">0</div></div>
+    <div class="card"><div class="label">Monthly Cases</div><div class="value" id="monthlyCases">0</div></div>
+    <div class="card"><div class="label">History Years Used</div><div class="value" id="historyYears">0</div></div>
+  </div>
+
+  <h2 class="section-title">Flavor-Wise Monthly Forecast</h2>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Store</th><th>Flavor</th><th>Monthly Forecast</th><th>Years Used</th></tr>
+      </thead>
+      <tbody id="flavorRows"></tbody>
+    </table>
+  </div>
+
+  <h2 class="section-title">Week-Wise Distribution</h2>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Store</th><th>Flavor</th><th>Week 1</th><th>Week 2</th><th>Week 3</th><th>Week 4</th><th>Week 5</th><th>Total</th></tr>
+      </thead>
+      <tbody id="weeklyRows"></tbody>
+    </table>
+  </div>
+</main>
+<script>
+const rows = ;
+const stores = [...new Set(rows.map(r => r[0]))].sort();
+const months = [...new Set(rows.map(r => r[2]))].sort();
+
+function fillSelect(id, values) {
+  const el = document.getElementById(id);
+  el.innerHTML = values.map(v => `<option value="${v}">${v}</option>`).join('');
+}
+
+function fmt(n) {
+  return Number(n || 0).toFixed(2);
+}
+
+function render() {
+  const store = document.getElementById('storeFilter').value;
+  const month = document.getElementById('monthFilter').value;
+  const filtered = rows.filter(r => r[0] === store && r[2] === month).sort((a, b) => b[4] - a[4]);
+
+  document.getElementById('flavorCount').textContent = filtered.length.toLocaleString();
+  document.getElementById('monthlyCases').textContent = fmt(filtered.reduce((s, r) => s + Number(r[4] || 0), 0));
+  document.getElementById('historyYears').textContent = filtered.length ? Math.max(...filtered.map(r => Number(r[5] || 0))) : 0;
+
+  document.getElementById('flavorRows').innerHTML = filtered.map(r =>
+    `<tr><td>${r[0]}</td><td>${r[3]}</td><td>${fmt(r[4])}</td><td>${r[5]}</td></tr>`
+  ).join('');
+
+  document.getElementById('weeklyRows').innerHTML = filtered.map(r => {
+    const total = Number(r[6]||0) + Number(r[7]||0) + Number(r[8]||0) + Number(r[9]||0) + Number(r[10]||0);
+    return `<tr><td>${r[0]}</td><td>${r[3]}</td><td>${fmt(r[6])}</td><td>${fmt(r[7])}</td><td>${fmt(r[8])}</td><td>${fmt(r[9])}</td><td>${fmt(r[10])}</td><td>${fmt(total)}</td></tr>`;
+  }).join('');
+}
+
+fillSelect('storeFilter', stores);
+fillSelect('monthFilter', months);
+document.getElementById('storeFilter').addEventListener('change', render);
+document.getElementById('monthFilter').addEventListener('change', render);
+render();
+</script>
+</body>
+</html>

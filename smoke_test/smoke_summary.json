@@ -1,0 +1,20 @@
+﻿{
+    "generated_at":  "2026-04-28T11:28:53-05:00",
+    "forecast_year":  2026,
+    "files":  [
+                  {
+                      "file":  "2026 PURCHASE REPORT - 2026-02-13T115520.743.xlsx",
+                      "rows":  9689
+                  }
+              ],
+    "history_rows":  9689,
+    "forecast_rows":  0,
+    "history_csv":  "C:\\Users\\revanth.apuri\\Downloads\\Yogurt forecasting\\smoke_test\\smoke_history.csv",
+    "forecast_csv":  "C:\\Users\\revanth.apuri\\Downloads\\Yogurt forecasting\\smoke_test\\smoke_forecast.csv",
+    "report_html":  "C:\\Users\\revanth.apuri\\Downloads\\Yogurt forecasting\\smoke_test\\smoke_report.html",
+    "method":  {
+                   "step_2":  "Weekly forecast uses the week-of-month share from the same store, flavor, and month across the previous 5 years.",
+                   "week_definition":  "Week 1 = days 1-7, Week 2 = days 8-14, Week 3 = days 15-21, Week 4 = days 22-28, Week 5 = days 29-end.",
+                   "step_1":  "Monthly forecast is the average of the same month across the previous 5 years, with missing years treated as zero."
+               }
+}

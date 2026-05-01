@@ -1,0 +1,72 @@
+{
+  "generated_at": "2026-04-29T19:50:23.505Z",
+  "forecast_year": 2026,
+  "files": [
+    {
+      "file": "2020 PURCHASE REPORT - 2026-02-13T112446.524.xlsx",
+      "rows": 349050,
+      "used_rows": 349050
+    },
+    {
+      "file": "2021 PURCHASE REPORT - 2026-02-13T112949.224.xlsx",
+      "rows": 403816,
+      "used_rows": 403816
+    },
+    {
+      "file": "2022 PURCHASE REPORT - 2026-02-13T113557.098.xlsx",
+      "rows": 411786,
+      "used_rows": 411786
+    },
+    {
+      "file": "2023 PURCHASE REPORT - 2026-02-13T113930.108.xlsx",
+      "rows": 404313,
+      "used_rows": 404313
+    },
+    {
+      "file": "2024 PURCHASE REPORT - 2026-02-13T114610.316.xlsx",
+      "rows": 429525,
+      "used_rows": 429525
+    },
+    {
+      "file": "2025 PURCHASE REPORT - 2026-02-13T115006.441.xlsx",
+      "rows": 436450,
+      "used_rows": 436450
+    }
+  ],
+  "history_rows": 2434940,
+  "forecast_rows": 190670,
+  "classification_source": "2025 PURCHASE REPORT - 2026-02-13T115006.441.xlsx",
+  "classification_counts": {
+    "Flavor": 1192464,
+    "Topping": 375586,
+    "Other": 866890
+  },
+  "weather": {
+    "enabled": true,
+    "source": "Open-Meteo archive precipitation_sum",
+    "cache_path": "C:\\Users\\revanth.apuri\\Downloads\\Yogurt forecasting\\.cache_weather\\open_meteo_weather.json",
+    "resolved_locations": 292,
+    "unresolved_locations": 9,
+    "rain_threshold_inches": 0.1,
+    "analog_year_for_2026_weather": 2025,
+    "fallback_rain_drop_rate": 0.1
+  },
+  "cache_directory": "C:\\Users\\revanth.apuri\\Downloads\\Yogurt forecasting\\.cache_extracted_history_node",
+  "history_csv": "C:\\Users\\revanth.apuri\\Downloads\\Yogurt forecasting\\purchase_history_4cols.csv",
+  "forecast_csv": "C:\\Users\\revanth.apuri\\Downloads\\Yogurt forecasting\\two_step_forecast_2026.csv",
+  "report_html": "C:\\Users\\revanth.apuri\\Downloads\\Yogurt forecasting\\two_step_forecast_2026.html",
+  "method": {
+    "source_years": [
+      2020,
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "weekly_forecast": "Each 2026 week is averaged from the same store, item, month, and week in 2020, 2021, 2022, 2023, 2024, 2025, excluding years where that store/item/month had zero cases.",
+    "monthly_forecast": "Monthly forecast is the sum of the five weekly forecast averages after excluding zero monthly years from the denominator.",
+    "weather_adjustment": "Weather adjustment uses location precipitation from Open-Meteo archive data. For 2026 weather, it uses 2025 same-month/same-week precipitation as the future-weather analog, then compares rainy/dry historical weeks for that store and item; rainy weeks fall back to a 10% drop when history is sparse.",
+    "week_definition": "Week 1 = days 1-7, Week 2 = days 8-14, Week 3 = days 15-21, Week 4 = days 22-28, Week 5 = days 29-end."
+  }
+}
