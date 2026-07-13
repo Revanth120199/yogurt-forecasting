@@ -15,7 +15,7 @@ header{padding:24px 30px 20px;border-bottom:1px solid var(--line);background:rgb
 .brand-title{font-size:28px;font-weight:800;color:#17212b;line-height:1}
 main{padding:22px 30px 38px}
 .filters,.grid{display:grid;gap:12px;margin-bottom:18px}
-.filters{grid-template-columns:repeat(7,minmax(140px,1fr))}
+.filters{grid-template-columns:repeat(8,minmax(140px,1fr))}
 .grid{grid-template-columns:repeat(9,minmax(120px,1fr))}
 label{display:block;font-size:11px;color:var(--muted);text-transform:uppercase;margin-bottom:4px;letter-spacing:.04em}
 select{width:100%;padding:10px 11px;border:1px solid var(--line);border-radius:7px;background:#fff;font-size:14px}
@@ -49,6 +49,7 @@ td.forecast,th.forecast{color:var(--forecast);font-weight:700;background:#f5f8ff
 </header>
 <main>
 <div class="filters">
+<div><label for="opcoFilter">OpCo</label><select id="opcoFilter"></select></div>
 <div><label for="storeFilter">Store / Unit</label><select id="storeFilter"></select></div>
 <div><label for="monthFilter">Month</label><select id="monthFilter"></select></div>
 <div><label for="groupFilter">Item Group</label><select id="groupFilter"></select></div>
@@ -105,6 +106,7 @@ td.forecast,th.forecast{color:var(--forecast);font-weight:700;background:#f5f8ff
 <script>
 const weekDays = ['1-7', '8-14', '15-21', '22-28', '29-end'];
 const allValue = '__ALL__';
+const opcoStores = {"Acadiana":["LA101","LA103","LA104","LA102"],"Arizona":["AZ105","AZ104","AZ103","AZ107"],"Central California":["CA218","CA340","CA261","CA333","CA175","CA206"],"Denver":["CO101","CO102","CO104","CO103"],"Houston":["TX117","TX111","TX120","TX128"],"Intermountain":["UT102","UT101"],"Las Vegas":["UT103","NV108","NV110","NV111","NV109","NV105","NV103","NV102","UT107","NV107","NV104","NV101","NV113","NV112","NV114"],"Los Angeles":["CA112","CA343","CA330","CA228","CA115","CA293","CA128","CA234","CA220","CA302","CA247","CA195","CA172","CA240","CA235","CA304","CA146","CA296","CA344","CA125","CA251","CA227","CA318","CA123","CA141","CA159","CA294","CA212","CA245","CA258","CA260","CA298","CA133","CA284","CA187","CA321","CA316","CA210","CA334","CA194","CA188","CA173","CA120","CA243","CA168","CA178","CA290","CA117","CA202","CA145","CA308","CA289","CA313","CA314","CA299","CA129","CA165","CA179","CA208","CA131","CA347","CA193","CA237","CA157","CA108","CA118","CA285","CA232","CA303","CA200","CA279","CA238","CA257","CA130","CA309","CA109","CA252","CA224","CA192","CA183","CA148","CA167","CA322","CA287","CA119","CA250","CA142"],"North Texas":["TX109","TX103","TX126","TX101","TX119","TX105","TX124","TX102","TX123"],"Philadelphia":["NJ109","NJ110"],"Riverside":["CA346","CA317","CA286","CA349","CA297","CA342","CA161","CA217","CA323","CA177","CA269","CA348","CA204","CA305","CA292","CA278","CA280","CA244","CA231","CA328","CA221","CA151","CA288","CA329","CA158","CA273","CA110"],"San Francisco":["CA132","CA147","CA301","CA184","CA163","CA136","CA230","CA205","CA248","CA253","CA176","CA153","CA106","CA277","CA268","CA242","CA186","CA181","CA201","CA291"],"Ventura":["CA215","CA137","CA283","CA341","CA295","CA254","CA170","CA111","CA169","CA164","CA315","CA166","CA233","CA306","CA255","CA216","CA185"]};
 const storeAliases = {
   'AZ1051': 'AZ105',
   'YL330': 'CA330',
@@ -176,10 +178,21 @@ function setOptions(id, values, formatter, allLabel) {
 function isSeasonalRow(row) {
   return String(row[11] || '').trim() !== '';
 }
+function storesForOpco() {
+  const opco = document.getElementById('opcoFilter').value;
+  if (opco === allValue) return stores;
+  const opcoSet = new Set(opcoStores[opco] || []);
+  return stores.filter(function(s) { return opcoSet.has(s); });
+}
 function rowsForStore() {
   const store = document.getElementById('storeFilter').value;
-  if (store === allValue) return rows;
-  return rows.filter(function(r) { return canonicalStoreCode(r[0]) === store; });
+  const opco = document.getElementById('opcoFilter').value;
+  if (store !== allValue) return rows.filter(function(r) { return canonicalStoreCode(r[0]) === store; });
+  if (opco !== allValue) {
+    const opcoSet = new Set(storesForOpco());
+    return rows.filter(function(r) { return opcoSet.has(canonicalStoreCode(r[0])); });
+  }
+  return rows;
 }
 function rowsForStoreMonth() {
   const store = document.getElementById('storeFilter').value;
@@ -359,6 +372,10 @@ function renderStoreOverview() {
       }).join('')
     : '<tr><td colspan="5" style="color:var(--muted);padding:10px">No seasonal flavors for this selection</td></tr>';
 }
+function onOpcoChange() {
+  setOptions('storeFilter', storesForOpco(), formatStoreLabel, 'All Stores');
+  onStoreChange();
+}
 function onStoreChange() {
   refreshMonthOptions();
   refreshGroupOptions();
@@ -438,6 +455,7 @@ function render() {
       '<td class="forecast">' + fmt(row[15][weekIndex]) + '</td></tr>';
   }).join('');
 }
+setOptions('opcoFilter', Object.keys(opcoStores).sort(), null, 'All OpCos');
 setOptions('storeFilter', stores, formatStoreLabel, 'All Stores');
 refreshMonthOptions();
 refreshGroupOptions();
@@ -445,6 +463,7 @@ refreshCategoryOptions();
 refreshSeasonOptions();
 refreshFlavorTypeOptions();
 refreshFlavorOptions();
+document.getElementById('opcoFilter').addEventListener('change', onOpcoChange);
 document.getElementById('storeFilter').addEventListener('change', onStoreChange);
 document.getElementById('monthFilter').addEventListener('change', onMonthChange);
 document.getElementById('groupFilter').addEventListener('change', onGroupChange);
